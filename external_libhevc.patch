@@ -3955,7 +3955,7 @@ index e9b69c1..1f99ff8 100644
  
  
 diff --git a/common/ihevc_defs.h b/common/ihevc_defs.h
-index a2b7eda..c4e34ba 100644
+index a2b7eda..9294e51 100644
 --- a/common/ihevc_defs.h
 +++ b/common/ihevc_defs.h
 @@ -274,7 +274,7 @@ typedef enum {
@@ -3967,6 +3967,37 @@ index a2b7eda..c4e34ba 100644
  
  #define MAX_STREF_PICS_SPS 64
  
+@@ -294,10 +294,14 @@ typedef enum {
+ /* CTB Size Range */
+ #define MAX_CTB_SIZE        64
+ #define MIN_CTB_SIZE        16
++#define LOG2_MAX_CTB_SIZE   6
++#define LOG2_MIN_CTB_SIZE   4
+ 
+ /* TU Size Range */
+ #define MAX_TU_SIZE         32
+ #define MIN_TU_SIZE         4
++#define LOG2_MAX_TU_SIZE    5
++#define LOG2_MIN_TU_SIZE    2
+ 
+ /* Max Transform Size */
+ #define MAX_TRANS_SIZE      (MAX_TU_SIZE*MAX_TU_SIZE)
+@@ -305,11 +309,14 @@ typedef enum {
+ /* PU Size Range */
+ #define MAX_PU_SIZE         64
+ #define MIN_PU_SIZE         4
++#define LOG2_MAX_PU_SIZE    6
++#define LOG2_MIN_PU_SIZE    2
+ 
+ /* CU Size Range */
+ #define MAX_CU_SIZE         64
+ #define MIN_CU_SIZE         8
+-
++#define LOG2_MAX_CU_SIZE    6
++#define LOG2_MIN_CU_SIZE    3
+ 
+ /* Number of max TU in a CTB row */
+ #define MAX_TU_IN_CTB_ROW   ((MAX_CTB_SIZE / MIN_TU_SIZE))
 diff --git a/common/ihevc_structs.h b/common/ihevc_structs.h
 index 93d2ad4..baa6375 100644
 --- a/common/ihevc_structs.h
@@ -4010,6 +4041,122 @@ index 93d2ad4..baa6375 100644
 +    sub_lyr_hrd_params_t as_sub_layer_hrd_params[VPS_MAX_SUB_LAYERS];
  
  }hrd_params_t;
+ 
+diff --git a/decoder/arm/ihevcd_fmt_conv_420sp_to_rgba8888.s b/decoder/arm/ihevcd_fmt_conv_420sp_to_rgba8888.s
+index a9a75cb..caf7123 100644
+--- a/decoder/arm/ihevcd_fmt_conv_420sp_to_rgba8888.s
++++ b/decoder/arm/ihevcd_fmt_conv_420sp_to_rgba8888.s
+@@ -68,13 +68,13 @@
+ @*                                                                            *
+ @*  Register Usage   : R0 - R14                                               *
+ @*                                                                            *
+-@*  Stack Usage      : 40 Bytes                                               *
++@*  Stack Usage      : 104 Bytes                                              *
+ @*                                                                            *
+ @*  Interruptibility : Interruptible                                          *
+ @*                                                                            *
+ @*  Known Limitations                                                         *
+ @*       Assumptions: Image Width:     Assumed to be multiple of 16 and       *
+-@*                     greater than or equal to 16                *
++@*                     greater than or equal to 16                            *
+ @*                     Image Height:    Assumed to be even.                   *
+ @*                                                                            *
+ @*  Revision History :                                                        *
+@@ -82,6 +82,7 @@
+ @*         07 06 2010   Varshita        Draft                                 *
+ @*         07 06 2010   Naveen Kr T     Completed                             *
+ @*         05 08 2013   Naveen K P      Modified for HEVC                     *
++@*         30 10 2018   Saurabh Sood    Store D registers to stack            *
+ @*****************************************************************************/
+     .global ihevcd_fmt_conv_420sp_to_rgba8888_a9q
+ .type ihevcd_fmt_conv_420sp_to_rgba8888_a9q, function
+@@ -89,7 +90,7 @@ ihevcd_fmt_conv_420sp_to_rgba8888_a9q:
+ 
+     @// push the registers on the stack
+     STMFD       SP!,{R4-R12,LR}
+-
++    VPUSH       {d8-d15}
+ 
+     @//R0 - Y PTR
+     @//R1 - UV PTR
+@@ -131,12 +132,12 @@ ihevcd_fmt_conv_420sp_to_rgba8888_a9q:
+ 
+     @//D0 HAS C1-C2-C3-C4
+     @// load other parameters from stack
+-    LDR         R5,[sp,#40]
++    LDR         R5,[sp,#104]
+     @LDR  R4,[sp,#44]
+-    LDR         R6,[sp,#44]
+-    LDR         R7,[sp,#48]
++    LDR         R6,[sp,#108]
++    LDR         R7,[sp,#112]
+     @LDR  R8,[sp,#52]
+-    LDR         R9,[sp,#52]
++    LDR         R9,[sp,#116]
+ 
+     @// calculate offsets, offset = stride - width
+     SUB         R10,R6,R3                   @// luma offset
+@@ -445,10 +446,8 @@ LABEL_YUV420SP_TO_RGB8888_WIDTH_LOOP_SKIP:
+     BNE         LABEL_YUV420SP_TO_RGB8888_HEIGHT_LOOP
+ 
+     @//POP THE REGISTERS
++    VPOP        {d8-d15}
+     LDMFD       SP!,{R4-R12,PC}
+ 
+ 
+-
+-
+     .section .note.GNU-stack,"",%progbits
+-
+diff --git a/decoder/arm/ihevcd_itrans_recon_dc_chroma.s b/decoder/arm/ihevcd_itrans_recon_dc_chroma.s
+index 6732ce0..9184b80 100644
+--- a/decoder/arm/ihevcd_itrans_recon_dc_chroma.s
++++ b/decoder/arm/ihevcd_itrans_recon_dc_chroma.s
+@@ -58,9 +58,9 @@ ihevcd_itrans_recon_dc_chroma_a9q:
+ 
+ 
+     push        {r0-r11,lr}
+-    ldr         r4,[sp,#0x34]               @loads log2_trans_size
+-    ldr         r5,[sp,#0x38]               @ loads i2_coeff_value
+-
++    vpush       {d8-d15}
++    ldr         r4,[sp,#0x74]               @loads log2_trans_size
++    ldr         r5,[sp,#0x78]               @ loads i2_coeff_value
+     mov         r10,#1
+     lsl         r4,r10,r4                   @    trans_size = (1 << log2_trans_size)@
+     mov         r6,#64 @ 1 << (shift1 - 1)@
+@@ -188,6 +188,7 @@ col_loop_4chroma:
+     vst1.u32    {d8},[r1]
+ 
+ end_loops_chroma:
++    vpop        {d8-d15}
+     pop         {r0-r11,pc}
+ 
+ 
+diff --git a/decoder/arm/ihevcd_itrans_recon_dc_luma.s b/decoder/arm/ihevcd_itrans_recon_dc_luma.s
+index 8aee84c..da1f1ad 100644
+--- a/decoder/arm/ihevcd_itrans_recon_dc_luma.s
++++ b/decoder/arm/ihevcd_itrans_recon_dc_luma.s
+@@ -59,9 +59,9 @@ ihevcd_itrans_recon_dc_luma_a9q:
+ 
+ 
+     push        {r0-r11,lr}
+-    ldr         r4,[sp,#0x34]               @loads log2_trans_size
+-    ldr         r5,[sp,#0x38]               @ loads i2_coeff_value
+-
++    vpush       {d8-d15}
++    ldr         r4,[sp,#0x74]               @loads log2_trans_size
++    ldr         r5,[sp,#0x78]               @ loads i2_coeff_value
+     mov         r10,#1
+     lsl         r4,r10,r4                   @    trans_size = (1 << log2_trans_size)@
+     mov         r6,#64 @ 1 << (shift1 - 1)@
+@@ -182,6 +182,7 @@ col_loop_4:
+     vst1.u32    {d5[0]},[r1]
+ 
+ end_loops:
++    vpop        {d8-d15}
+     pop         {r0-r11,pc}
+ 
  
 diff --git a/decoder/ihevcd_api.c b/decoder/ihevcd_api.c
 index c661083..2ae90b0 100644
@@ -4182,7 +4329,7 @@ index d656519..d2ea7a5 100644
  
      if(1 == ps_codec->i4_pic_present)
 diff --git a/decoder/ihevcd_parse_headers.c b/decoder/ihevcd_parse_headers.c
-index c0f1564..78b578a 100644
+index c0f1564..5397617 100644
 --- a/decoder/ihevcd_parse_headers.c
 +++ b/decoder/ihevcd_parse_headers.c
 @@ -1272,12 +1272,6 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
@@ -4230,7 +4377,45 @@ index c0f1564..78b578a 100644
          ps_sps->i2_pic_crop_bottom_offset = value;
      }
      else
-@@ -1402,7 +1412,9 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
+@@ -1372,17 +1382,37 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
+     }
+ 
+     UEV_PARSE("log2_min_coding_block_size_minus3", value, ps_bitstrm);
++    if(value > (LOG2_MAX_CU_SIZE - 3))
++    {
++        return IHEVCD_INVALID_PARAMETER;
++    }
+     ps_sps->i1_log2_min_coding_block_size = value + 3;
+ 
+     UEV_PARSE("log2_diff_max_min_coding_block_size", value, ps_bitstrm);
++    if(value > (LOG2_MAX_CU_SIZE - LOG2_MIN_CU_SIZE))
++    {
++        return IHEVCD_INVALID_PARAMETER;
++    }
+     ps_sps->i1_log2_diff_max_min_coding_block_size = value;
+ 
+     ctb_log2_size_y = ps_sps->i1_log2_min_coding_block_size + ps_sps->i1_log2_diff_max_min_coding_block_size;
+ 
+     UEV_PARSE("log2_min_transform_block_size_minus2", value, ps_bitstrm);
++    if(value > (LOG2_MAX_TU_SIZE - 2))
++    {
++        return IHEVCD_INVALID_PARAMETER;
++    }
+     ps_sps->i1_log2_min_transform_block_size = value + 2;
++    if(ps_sps->i1_log2_min_transform_block_size >= ps_sps->i1_log2_min_coding_block_size)
++    {
++        return IHEVCD_INVALID_PARAMETER;
++    }
+ 
+     UEV_PARSE("log2_diff_max_min_transform_block_size", value, ps_bitstrm);
++    if(value > (LOG2_MAX_TU_SIZE - LOG2_MIN_TU_SIZE))
++    {
++        return IHEVCD_INVALID_PARAMETER;
++    }
+     ps_sps->i1_log2_diff_max_min_transform_block_size = value;
+ 
+     ps_sps->i1_log2_max_transform_block_size = ps_sps->i1_log2_min_transform_block_size +
+@@ -1402,7 +1432,9 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
                      (ps_sps->i1_log2_diff_max_min_transform_block_size < 0) ||
                      (ps_sps->i1_log2_max_transform_block_size > ps_sps->i1_log2_ctb_size) ||
                      (ps_sps->i1_log2_ctb_size < 4) ||
@@ -4241,7 +4426,7 @@ index c0f1564..78b578a 100644
      {
          return IHEVCD_INVALID_PARAMETER;
      }
-@@ -1461,10 +1473,12 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
+@@ -1461,10 +1493,12 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
  
      }
      UEV_PARSE("num_short_term_ref_pic_sets", value, ps_bitstrm);
@@ -4256,7 +4441,7 @@ index c0f1564..78b578a 100644
      for(i = 0; i < ps_sps->i1_num_short_term_ref_pic_sets; i++)
          ihevcd_short_term_ref_pic_set(ps_bitstrm, &ps_sps->as_stref_picset[0], ps_sps->i1_num_short_term_ref_pic_sets, i, &ps_sps->as_stref_picset[i]);
  
-@@ -1474,6 +1488,10 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
+@@ -1474,6 +1508,10 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
      if(ps_sps->i1_long_term_ref_pics_present_flag)
      {
          UEV_PARSE("num_long_term_ref_pics_sps", value, ps_bitstrm);
@@ -4267,7 +4452,7 @@ index c0f1564..78b578a 100644
          ps_sps->i1_num_long_term_ref_pics_sps = value;
  
          for(i = 0; i < ps_sps->i1_num_long_term_ref_pics_sps; i++)
-@@ -1576,6 +1594,18 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
+@@ -1576,6 +1614,18 @@ IHEVCD_ERROR_T ihevcd_parse_sps(codec_t *ps_codec)
          if((0 >= disp_wd) || (0 >= disp_ht))
              return IHEVCD_INVALID_PARAMETER;
  
@@ -4286,7 +4471,7 @@ index c0f1564..78b578a 100644
          ps_codec->i4_disp_wd = disp_wd;
          ps_codec->i4_disp_ht = disp_ht;
  
-@@ -1797,6 +1827,35 @@ IHEVCD_ERROR_T ihevcd_parse_pps(codec_t *ps_codec)
+@@ -1797,6 +1847,35 @@ IHEVCD_ERROR_T ihevcd_parse_pps(codec_t *ps_codec)
      BITS_PARSE("tiles_enabled_flag", value, ps_bitstrm, 1);
      ps_pps->i1_tiles_enabled_flag = value;
  
@@ -4322,6 +4507,28 @@ index c0f1564..78b578a 100644
      BITS_PARSE("entropy_coding_sync_enabled_flag", value, ps_bitstrm, 1);
      ps_pps->i1_entropy_coding_sync_enabled_flag = value;
  
+@@ -1841,6 +1920,10 @@ IHEVCD_ERROR_T ihevcd_parse_pps(codec_t *ps_codec)
+                     {
+                         UEV_PARSE("column_width_minus1[ i ]", value, ps_bitstrm);
+                         value += 1;
++                        if (value >= ps_sps->i2_pic_wd_in_ctb - start)
++                        {
++                            return IHEVCD_INVALID_HEADER;
++                        }
+                     }
+                     else
+                     {
+@@ -1877,6 +1960,10 @@ IHEVCD_ERROR_T ihevcd_parse_pps(codec_t *ps_codec)
+ 
+                         UEV_PARSE("row_height_minus1[ i ]", value, ps_bitstrm);
+                         value += 1;
++                        if (value >= ps_sps->i2_pic_ht_in_ctb - start)
++                        {
++                            return IHEVCD_INVALID_HEADER;
++                        }
+                     }
+                     else
+                     {
 diff --git a/decoder/ihevcd_parse_slice.c b/decoder/ihevcd_parse_slice.c
 index 126b14c..e394a4e 100644
 --- a/decoder/ihevcd_parse_slice.c

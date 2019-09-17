@@ -589,10 +589,26 @@ index d02dfa0b8..90d74cf53 100644
          return handle;
      }
 diff --git a/btif/src/btif_storage.c b/btif/src/btif_storage.c
-index 83dcc8c47..d02b09a55 100644
+index 83dcc8c47..670af4f4d 100644
 --- a/btif/src/btif_storage.c
 +++ b/btif/src/btif_storage.c
-@@ -229,6 +229,10 @@ static int prop2cfg(bt_bdaddr_t *remote_bd_addr, bt_property_t *prop)
+@@ -35,6 +35,7 @@
+ #include <alloca.h>
+ #include <assert.h>
+ #include <ctype.h>
++#include <log/log.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <time.h>
+@@ -49,6 +50,7 @@
+ #include "osi/include/allocator.h"
+ #include "osi/include/compat.h"
+ #include "osi/include/config.h"
++#include "osi/include/list.h"
+ #include "osi/include/log.h"
+ #include "osi/include/osi.h"
+ 
+@@ -229,6 +231,10 @@ static int prop2cfg(bt_bdaddr_t *remote_bd_addr, bt_property_t *prop)
                  bt_uuid_t *p_uuid = (bt_uuid_t*)prop->val + i;
                  memset(buf, 0, sizeof(buf));
                  uuid_to_string_legacy(p_uuid, buf);
@@ -603,6 +619,76 @@ index 83dcc8c47..d02b09a55 100644
                  strcat(value, buf);
                  //strcat(value, ";");
                  strcat(value, " ");
+@@ -829,6 +835,47 @@ bt_status_t btif_storage_remove_bonded_device(bt_bdaddr_t *remote_bd_addr)
+ 
+ }
+ 
++/* Some devices hardcode sample LTK value from spec, instead of generating one.
++ * Treat such devices as insecure, and remove such bonds when bluetooth restarts.
++ * Removing them after disconnection is handled separately.
++ *
++ * We still allow such devices to bond in order to give the user a chance to update
++ * firmware.
++ */
++static void remove_devices_with_sample_ltk() {
++    list_t *bad_ltk = list_new(osi_free);
++
++    for (const btif_config_section_iter_t *iter = btif_config_section_begin(); iter != btif_config_section_end(); iter = btif_config_section_next(iter)) {
++        const char *name = btif_config_section_name(iter);
++        if (!string_is_bdaddr(name)) {
++            continue;
++        }
++
++        bt_bdaddr_t *bda = osi_malloc(sizeof(bt_bdaddr_t));
++        string_to_bdaddr(name, bda);
++
++        tBTA_LE_KEY_VALUE key;
++        memset(&key, 0, sizeof(key));
++
++        if (btif_storage_get_ble_bonding_key(bda, BTIF_DM_LE_KEY_PENC, (char*)&key, sizeof(tBTM_LE_PENC_KEYS)) ==
++              BT_STATUS_SUCCESS) {
++              if (is_sample_ltk(key.penc_key.ltk)) {
++                  list_append(bad_ltk, (void*)bda);
++              }
++        }
++    }
++
++    for (list_node_t *sn = list_begin(bad_ltk); sn != list_end(bad_ltk); sn = list_next(sn)) {
++        android_errorWriteLog(0x534e4554, "128437297");
++        BTIF_TRACE_ERROR("%s: removing bond to device using test TLK", __func__);
++
++        bt_bdaddr_t *bda = (bt_bdaddr_t*)list_node(sn);
++        btif_storage_remove_bonded_device(bda);
++    }
++
++    list_free(bad_ltk);
++}
++
+ /*******************************************************************************
+ **
+ ** Function         btif_storage_load_bonded_devices
+@@ -855,6 +902,8 @@ bt_status_t btif_storage_load_bonded_devices(void)
+     bt_uuid_t local_uuids[BT_MAX_NUM_UUIDS];
+     bt_uuid_t remote_uuids[BT_MAX_NUM_UUIDS];
+ 
++    remove_devices_with_sample_ltk();
++
+     btif_in_fetch_bonded_devices(&bonded_devices, 1);
+ 
+     /* Now send the adapter_properties_cb with all adapter_properties */
+diff --git a/device/src/controller.c b/device/src/controller.c
+index 4440ea55a..23799d803 100644
+--- a/device/src/controller.c
++++ b/device/src/controller.c
+@@ -252,6 +252,8 @@ static future_t *start_up(void) {
+         &number_of_local_supported_codecs, local_supported_codecs);
+   }
+ 
++  assert(HCI_READ_ENCR_KEY_SIZE_SUPPORTED(supported_commands));
++
+   readable = true;
+   return future_new_immediate(FUTURE_SUCCESS);
+ }
 diff --git a/osi/src/alarm.c b/osi/src/alarm.c
 index 69ded69e4..5f9e42ce3 100644
 --- a/osi/src/alarm.c
@@ -1880,6 +1966,182 @@ index 8df005bf8..b278dea8f 100644
      }
  
      return TRUE;
+diff --git a/stack/btm/btm_sec.c b/stack/btm/btm_sec.c
+index 83f6494c4..5b3a57684 100644
+--- a/stack/btm/btm_sec.c
++++ b/stack/btm/btm_sec.c
+@@ -24,6 +24,7 @@
+ 
+ #define LOG_TAG "bt_btm_sec"
+ 
++#include <log/log.h>
+ #include <stdarg.h>
+ #include <string.h>
+ 
+@@ -47,6 +48,9 @@
+     #include "gatt_int.h"
+ #endif
+ 
++#include "bta/sys/bta_sys.h"
++#include "bta/dm/bta_dm_int.h"
++
+ #define BTM_SEC_MAX_COLLISION_DELAY     (5000)
+ 
+ extern fixed_queue_t *btu_general_alarm_queue;
+@@ -4808,6 +4812,19 @@ void btm_sec_disconnected (UINT16 handle, UINT8 reason)
+                 | BTM_SEC_ROLE_SWITCHED | BTM_SEC_16_DIGIT_PIN_AUTHED);
+     }
+ 
++    /* Some devices hardcode sample LTK value from spec, instead of generating
++     * one. Treat such devices as insecure, and remove such bonds on
++     * disconnection.
++     */
++    if (is_sample_ltk(p_dev_rec->ble.keys.pltk)) {
++      android_errorWriteLog(0x534e4554, "128437297");
++      BTM_TRACE_ERROR("%s: removing bond to device that used sample LTK", __func__);
++
++      tBTA_DM_MSG p_data;
++      memcpy(p_data.remove_dev.bd_addr, p_dev_rec->bd_addr, BD_ADDR_LEN);
++      bta_dm_remove_device(&p_data);
++    }
++
+ #if BLE_INCLUDED == TRUE && SMP_INCLUDED == TRUE
+     if (p_dev_rec->sec_state == BTM_SEC_STATE_DISCONNECTING_BOTH)
+     {
+diff --git a/stack/btu/btu_hcif.c b/stack/btu/btu_hcif.c
+index ade7a9b59..cf8922a99 100644
+--- a/stack/btu/btu_hcif.c
++++ b/stack/btu/btu_hcif.c
+@@ -28,6 +28,7 @@
+ #define LOG_TAG "bt_btu_hcif"
+ 
+ #include <assert.h>
++#include <log/log.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -601,6 +602,55 @@ static void btu_hcif_rmt_name_request_comp_evt (UINT8 *p, UINT16 evt_len)
+     btm_sec_rmt_name_request_complete (bd_addr, p, status);
+ }
+ 
++const uint8_t MIN_KEY_SIZE = 7;
++bool read_key_send_from_key_refresh = false;
++
++static void read_encryption_key_size_complete_after_key_refresh(
++    uint8_t status, uint16_t handle, uint8_t key_size) {
++  if (status != HCI_SUCCESS) {
++    HCI_TRACE_WARNING("%s: disconnecting, status: 0x%02x", __func__, status);
++    btsnd_hcic_disconnect(handle, HCI_ERR_PEER_USER);
++    return;
++  }
++
++  if (key_size < MIN_KEY_SIZE) {
++    android_errorWriteLog(0x534e4554, "124301137");
++    HCI_TRACE_ERROR(
++        "%s encryption key too short, disconnecting. handle: 0x%02x, key_size: "
++        "%d",
++        __func__, handle, key_size);
++
++    btsnd_hcic_disconnect(handle, HCI_ERR_HOST_REJECT_SECURITY);
++    return;
++  }
++  
++  btm_sec_encrypt_change(handle, status, 1 /* enc_enable */);
++}
++
++static void read_encryption_key_size_complete_after_encryption_change(
++    uint8_t status, uint16_t handle, uint8_t key_size) {
++  if (status != HCI_SUCCESS) {
++    HCI_TRACE_WARNING("%s: disconnecting, status: 0x%02x", __func__, status);
++    btsnd_hcic_disconnect(handle, HCI_ERR_PEER_USER);
++    return;
++  }
++
++  if (key_size < MIN_KEY_SIZE) {
++    android_errorWriteLog(0x534e4554, "124301137");
++    HCI_TRACE_ERROR(
++        "%s encryption key too short, disconnecting. handle: 0x%02x, key_size: "
++        "%d",
++        __func__, handle, key_size);
++
++    btsnd_hcic_disconnect(handle, HCI_ERR_HOST_REJECT_SECURITY);
++    return;
++  }
++
++  // good key size - succeed
++  btm_acl_encrypt_change(handle, status, 1 /* enable */);
++  btm_sec_encrypt_change(handle, status, 1 /* enable */);
++}
++
+ /*******************************************************************************
+ **
+ ** Function         btu_hcif_encryption_change_evt
+@@ -620,8 +670,14 @@ static void btu_hcif_encryption_change_evt (UINT8 *p)
+     STREAM_TO_UINT16 (handle, p);
+     STREAM_TO_UINT8  (encr_enable, p);
+ 
+-    btm_acl_encrypt_change (handle, status, encr_enable);
+-    btm_sec_encrypt_change (handle, status, encr_enable);
++    if (status != HCI_SUCCESS || encr_enable == 0 ||
++        BTM_IsBleConnection(handle)) {
++        btm_acl_encrypt_change (handle, status, encr_enable);
++        btm_sec_encrypt_change (handle, status, encr_enable);
++    } else {
++        read_key_send_from_key_refresh = false;
++        btsnd_hcic_read_encryption_key_size(handle);
++    }
+ }
+ 
+ /*******************************************************************************
+@@ -824,6 +880,26 @@ static void btu_hcif_hdl_command_complete (UINT16 opcode, UINT8 *p, UINT16 evt_l
+             btm_read_inq_tx_power_complete(p);
+             break;
+ 
++        case HCI_READ_ENCR_KEY_SIZE: {
++            UINT8 *pp = p;
++
++            UINT8   status;
++            UINT16  handle;
++            UINT8   key_size;
++
++            STREAM_TO_UINT8  (status, pp);
++            STREAM_TO_UINT16 (handle, pp);
++            STREAM_TO_UINT8  (key_size, pp);
++
++            if (read_key_send_from_key_refresh) {
++                read_encryption_key_size_complete_after_encryption_change(status, handle, key_size);
++            } else {
++                read_encryption_key_size_complete_after_key_refresh(status, handle, key_size);
++            }
++
++            }
++            break;
++
+ #if (BLE_INCLUDED == TRUE)
+ /* BLE Commands sComplete*/
+         case HCI_BLE_ADD_WHITE_LIST:
+@@ -1595,6 +1671,7 @@ static void btu_hcif_enhanced_flush_complete_evt (void)
+ ** BLE Events
+ ***********************************************/
+ #if (defined BLE_INCLUDED) && (BLE_INCLUDED == TRUE)
++
+ static void btu_hcif_encryption_key_refresh_cmpl_evt (UINT8 *p)
+ {
+     UINT8   status;
+@@ -1606,7 +1683,12 @@ static void btu_hcif_encryption_key_refresh_cmpl_evt (UINT8 *p)
+ 
+     if (status == HCI_SUCCESS) enc_enable = 1;
+ 
+-    btm_sec_encrypt_change (handle, status, enc_enable);
++    if (status != HCI_SUCCESS || BTM_IsBleConnection(handle)) {
++        btm_sec_encrypt_change (handle, status, enc_enable);
++    } else  {
++        read_key_send_from_key_refresh = true;
++        btsnd_hcic_read_encryption_key_size(handle);
++    }
+ }
+ 
+ static void btu_ble_process_adv_pkt (UINT8 *p)
 diff --git a/stack/btu/btu_init.c b/stack/btu/btu_init.c
 index 688ed889d..9f9ed0a50 100644
 --- a/stack/btu/btu_init.c
@@ -1977,6 +2239,57 @@ index 11ef79c83..c2cdb885d 100644
      UNUSED(len);
  
      if (op_code == GATT_REQ_READ_BLOB)
+diff --git a/stack/hcic/hcicmds.c b/stack/hcic/hcicmds.c
+index 34fce493d..ef0670df7 100644
+--- a/stack/hcic/hcicmds.c
++++ b/stack/hcic/hcicmds.c
+@@ -1356,6 +1356,20 @@ BOOLEAN btsnd_hcic_read_rssi (UINT16 handle)
+     return (TRUE);
+ }
+ 
++BOOLEAN btsnd_hcic_read_encryption_key_size(UINT16 handle) {
++    BT_HDR *p = (BT_HDR *)osi_malloc(HCI_CMD_BUF_SIZE);
++    UINT8 *pp = (UINT8 *)(p + 1);
++
++    p->len    = HCIC_PREAMBLE_SIZE + 2;
++    p->offset = 0;
++
++    UINT16_TO_STREAM (pp, handle);
++
++    btu_hcif_send_cmd (LOCAL_BR_EDR_CONTROLLER_ID,  p);
++    return (TRUE);
++}
++
++
+ BOOLEAN btsnd_hcic_enable_test_mode (void)
+ {
+     BT_HDR *p = (BT_HDR *)osi_malloc(HCI_CMD_BUF_SIZE);
+@@ -1427,6 +1441,25 @@ BOOLEAN btsnd_hcic_write_pagescan_type (UINT8 type)
+ #error "HCI_CMD_BUF_SIZE must be larger than 268"
+ #endif
+ 
++void btsnd_hcic_raw_cmd (void *buffer, UINT16 opcode, UINT8 len,
++                                 UINT8 *p_data, void *p_cmd_cplt_cback)
++{
++    BT_HDR *p = (BT_HDR *)buffer;
++    UINT8 *pp = (UINT8 *)(p + 1);
++
++    p->len    = HCIC_PREAMBLE_SIZE + len;
++    p->offset = sizeof(void *);
++
++    *((void **)pp) = p_cmd_cplt_cback;  /* Store command complete callback in buffer */
++    pp += sizeof(void *);               /* Skip over callback pointer */
++
++    UINT16_TO_STREAM (pp, opcode);
++    UINT8_TO_STREAM  (pp, len);
++    ARRAY_TO_STREAM  (pp, p_data, len);
++
++    btu_hcif_send_cmd (LOCAL_BR_EDR_CONTROLLER_ID,  p);
++}
++
+ void btsnd_hcic_vendor_spec_cmd (void *buffer, UINT16 opcode, UINT8 len,
+                                  UINT8 *p_data, void *p_cmd_cplt_cback)
+ {
 diff --git a/stack/hid/hidh_conn.c b/stack/hid/hidh_conn.c
 index ffbafe428..0e6a05d76 100644
 --- a/stack/hid/hidh_conn.c
@@ -2004,6 +2317,32 @@ index ffbafe428..0e6a05d76 100644
  
      ttype    = HID_GET_TRANS_FROM_HDR(*p_data);
      param    = HID_GET_PARAM_FROM_HDR(*p_data);
+diff --git a/stack/include/bt_types.h b/stack/include/bt_types.h
+index 34447b62f..ce9859272 100644
+--- a/stack/include/bt_types.h
++++ b/stack/include/bt_types.h
+@@ -21,6 +21,7 @@
+ 
+ #include <stdint.h>
+ #include <stdbool.h>
++#include <string.h>
+ 
+ #ifndef FALSE
+ #  define FALSE  false
+@@ -791,4 +792,13 @@ static inline void bdsetany(BD_ADDR a)
+ {
+     bdcpy(a, bd_addr_any);
+ }
++
++static inline bool is_sample_ltk(const BT_OCTET16 ltk) {
++  /* Sample LTK from BT Spec 5.1 | Vol 6, Part C 1
++   * 0x4C68384139F574D836BCF34E9DFB01BF */
++  const uint8_t SAMPLE_LTK[] = {0xbf, 0x01, 0xfb, 0x9d, 0x4e, 0xf3, 0xbc, 0x36,
++                                0xd8, 0x74, 0xf5, 0x39, 0x41, 0x38, 0x68, 0x4c};
++  return memcmp(ltk, SAMPLE_LTK, BT_OCTET16_LEN) == 0;
++}
++
+ #endif
 diff --git a/stack/include/btm_api.h b/stack/include/btm_api.h
 index 451cd6ff7..360dd48b2 100644
 --- a/stack/include/btm_api.h
@@ -2034,6 +2373,41 @@ index 451cd6ff7..360dd48b2 100644
  extern BOOLEAN BTM_SecDeleteDevice (BD_ADDR bd_addr);
  
  /*******************************************************************************
+diff --git a/stack/include/btm_ble_api.h b/stack/include/btm_ble_api.h
+index 412fa8ea3..0cc2e18a2 100644
+--- a/stack/include/btm_ble_api.h
++++ b/stack/include/btm_ble_api.h
+@@ -1304,7 +1304,17 @@ extern BOOLEAN BTM_BleVerifySignature (BD_ADDR bd_addr, UINT8 *p_orig,
+ extern void BTM_ReadConnectionAddr (BD_ADDR remote_bda, BD_ADDR local_conn_addr,
+                                             tBLE_ADDR_TYPE *p_addr_type);
+ 
+-
++/*******************************************************************************
++ *
++ * Function         BTM_IsBleConnection
++ *
++ * Description      This function is called to check if the connection handle
++ *                  for an LE link
++ *
++ * Returns          true if connection is LE link, otherwise false.
++ *
++ ******************************************************************************/
++extern bool BTM_IsBleConnection(uint16_t conn_handle);
+ 
+ /*******************************************************************************
+ **
+diff --git a/stack/include/hcimsgs.h b/stack/include/hcimsgs.h
+index b59cbfa5a..30d861fbe 100644
+--- a/stack/include/hcimsgs.h
++++ b/stack/include/hcimsgs.h
+@@ -603,6 +603,7 @@ extern BOOLEAN btsnd_hcic_write_cur_iac_lap (UINT8 num_cur_iac,
+ 
+ extern BOOLEAN btsnd_hcic_get_link_quality (UINT16 handle);            /* Get Link Quality */
+ extern BOOLEAN btsnd_hcic_read_rssi (UINT16 handle);                   /* Read RSSI */
++extern BOOLEAN btsnd_hcic_read_encryption_key_size (UINT16 handle);    /* Read encryption key size */
+ extern BOOLEAN btsnd_hcic_enable_test_mode (void);                     /* Enable Device Under Test Mode */
+ extern BOOLEAN btsnd_hcic_write_pagescan_type(UINT8 type);             /* Write Page Scan Type */
+ extern BOOLEAN btsnd_hcic_write_inqscan_type(UINT8 type);              /* Write Inquiry Scan Type */
 diff --git a/stack/include/rfcdefs.h b/stack/include/rfcdefs.h
 index dcc37bc72..1c751f3f5 100644
 --- a/stack/include/rfcdefs.h
@@ -2825,8 +3199,26 @@ index 739469f64..d7fb8e5cf 100644
  
          ea                   = *p_data & RFCOMM_EA;
          cr                   = (*p_data & RFCOMM_CR_MASK) >> RFCOMM_SHIFT_CR;
+diff --git a/stack/sdp/sdp_db.c b/stack/sdp/sdp_db.c
+index 8546536aa..cd1bf9e44 100644
+--- a/stack/sdp/sdp_db.c
++++ b/stack/sdp/sdp_db.c
+@@ -129,7 +129,12 @@ static BOOLEAN find_uuid_in_seq (UINT8 *p , UINT32 seq_len, UINT8 *p_uuid,
+     while (p < p_end)
+     {
+         type = *p++;
+-        p = sdpu_get_len_from_type (p, type, &len);
++        p = sdpu_get_len_from_type(p, p_end, type, &len);
++        if (p == NULL || (p + len) > p_end)
++        {
++            SDP_TRACE_WARNING("%s: bad length", __func__);
++            break;
++        }
+         type = type >> 3;
+         if (type == UUID_DESC_TYPE)
+         {
 diff --git a/stack/sdp/sdp_discovery.c b/stack/sdp/sdp_discovery.c
-index ec20689e3..416085db4 100644
+index ec20689e3..1c0607707 100644
 --- a/stack/sdp/sdp_discovery.c
 +++ b/stack/sdp/sdp_discovery.c
 @@ -29,6 +29,7 @@
@@ -2956,14 +3348,32 @@ index ec20689e3..416085db4 100644
      }
  }
  
-@@ -367,10 +390,18 @@ static void sdp_copy_raw_data (tCONN_CB *p_ccb, BOOLEAN offset)
+@@ -346,6 +369,7 @@ static void sdp_copy_raw_data (tCONN_CB *p_ccb, BOOLEAN offset)
+     unsigned int    cpy_len;
+     UINT32          list_len;
+     UINT8           *p;
++    UINT8           *p_end;
+     UINT8           type;
+ 
+ #if (SDP_DEBUG_RAW == TRUE)
+@@ -364,13 +388,27 @@ static void sdp_copy_raw_data (tCONN_CB *p_ccb, BOOLEAN offset)
+         cpy_len = p_ccb->p_db->raw_size - p_ccb->p_db->raw_used;
+         list_len = p_ccb->list_len;
+         p = &p_ccb->rsp_list[0];
++        p_end = &p_ccb->rsp_list[0] + list_len;
  
          if(offset)
          {
 +            cpy_len -= 1;
              type = *p++;
+-            p = sdpu_get_len_from_type (p, type, &list_len);
 +            uint8_t* old_p = p;
-             p = sdpu_get_len_from_type (p, type, &list_len);
++            p = sdpu_get_len_from_type(p, p_end, type, &list_len);
++            if (p == NULL || (p + list_len) > p_end)
++            {
++                SDP_TRACE_WARNING("%s: bad length", __func__);
++                return;
++            }
 +            if ((int)cpy_len < (p - old_p))
 +            {
 +                SDP_TRACE_WARNING("%s: no bytes left for data", __func__);
@@ -2976,7 +3386,7 @@ index ec20689e3..416085db4 100644
          {
              cpy_len = list_len;
          }
-@@ -395,7 +426,8 @@ static void sdp_copy_raw_data (tCONN_CB *p_ccb, BOOLEAN offset)
+@@ -395,7 +433,8 @@ static void sdp_copy_raw_data (tCONN_CB *p_ccb, BOOLEAN offset)
  ** Returns          void
  **
  *******************************************************************************/
@@ -2986,7 +3396,7 @@ index ec20689e3..416085db4 100644
  {
      UINT8           *p_start, *p_param_len;
      UINT16          param_len, list_byte_count;
-@@ -502,8 +534,12 @@ static void process_service_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
+@@ -502,8 +541,12 @@ static void process_service_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
          /* Was this a continuation request ? */
          if (cont_request_needed)
          {
@@ -3001,7 +3411,7 @@ index ec20689e3..416085db4 100644
          }
          else
              UINT8_TO_BE_STREAM (p, 0);
-@@ -541,7 +577,8 @@ static void process_service_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
+@@ -541,7 +584,8 @@ static void process_service_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
  ** Returns          void
  **
  *******************************************************************************/
@@ -3011,7 +3421,7 @@ index ec20689e3..416085db4 100644
  {
      UINT8           *p, *p_start, *p_end, *p_param_len;
      UINT8           type;
-@@ -555,6 +592,14 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
+@@ -555,6 +599,14 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
      /* If p_reply is NULL, we were called for the initial read */
      if (p_reply)
      {
@@ -3026,7 +3436,7 @@ index ec20689e3..416085db4 100644
  #if (SDP_DEBUG_RAW == TRUE)
          SDP_TRACE_WARNING("ID & len: 0x%02x-%02x-%02x-%02x",
              p_reply[0], p_reply[1], p_reply[2], p_reply[3]);
-@@ -578,6 +623,14 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
+@@ -578,6 +630,14 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
          SDP_TRACE_WARNING("list_len: %d, list_byte_count: %d",
              p_ccb->list_len, lists_byte_count);
  #endif
@@ -3041,7 +3451,7 @@ index ec20689e3..416085db4 100644
          if (p_ccb->rsp_list == NULL)
              p_ccb->rsp_list = (UINT8 *)osi_malloc(SDP_MAX_LIST_BYTE_COUNT);
          memcpy (&p_ccb->rsp_list[p_ccb->list_len], p_reply, lists_byte_count);
-@@ -641,8 +694,12 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
+@@ -641,8 +701,12 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
          /* No continuation for first request */
          if (p_reply)
          {
@@ -3056,7 +3466,48 @@ index ec20689e3..416085db4 100644
          }
          else
              UINT8_TO_BE_STREAM (p, 0);
-@@ -764,7 +821,7 @@ static UINT8 *save_attr_seq (tCONN_CB *p_ccb, UINT8 *p, UINT8 *p_msg_end)
+@@ -685,8 +749,12 @@ static void process_service_search_attr_rsp (tCONN_CB *p_ccb, UINT8 *p_reply)
+         SDP_TRACE_WARNING ("SDP - Wrong type: 0x%02x in attr_rsp", type);
+         return;
+     }
+-    p = sdpu_get_len_from_type (p, type, &seq_len);
+-
++    p = sdpu_get_len_from_type(p, p + p_ccb->list_len, type, &seq_len);
++    if (p == NULL || (p + seq_len) > (p + p_ccb->list_len))
++    {
++        SDP_TRACE_WARNING("%s: bad length", __func__);
++        return;
++    }
+     p_end = &p_ccb->rsp_list[p_ccb->list_len];
+ 
+     if ((p + seq_len) != p_end)
+@@ -733,9 +801,8 @@ static UINT8 *save_attr_seq (tCONN_CB *p_ccb, UINT8 *p, UINT8 *p_msg_end)
+         SDP_TRACE_WARNING ("SDP - Wrong type: 0x%02x in attr_rsp", type);
+         return (NULL);
+     }
+-
+-    p = sdpu_get_len_from_type (p, type, &seq_len);
+-    if ((p + seq_len) > p_msg_end)
++    p = sdpu_get_len_from_type(p, p_msg_end, type, &seq_len);
++    if (p == NULL || (p + seq_len) > p_msg_end)
+     {
+         SDP_TRACE_WARNING ("SDP - Bad len in attr_rsp %d", seq_len);
+         return (NULL);
+@@ -755,7 +822,12 @@ static UINT8 *save_attr_seq (tCONN_CB *p_ccb, UINT8 *p, UINT8 *p_msg_end)
+     {
+         /* First get the attribute ID */
+         type = *p++;
+-        p = sdpu_get_len_from_type (p, type, &attr_len);
++        p = sdpu_get_len_from_type(p, p_msg_end, type, &attr_len);
++        if (p == NULL || (p + attr_len) > p_seq_end)
++        {
++            SDP_TRACE_WARNING("%s: Bad len in attr_rsp %d", __func__, attr_len);
++            return (NULL);
++        }
+         if (((type >> 3) != UINT_DESC_TYPE) || (attr_len != 2))
+         {
+             SDP_TRACE_WARNING ("SDP - Bad type: 0x%02x or len: %d in attr_rsp", type, attr_len);
+@@ -764,7 +836,7 @@ static UINT8 *save_attr_seq (tCONN_CB *p_ccb, UINT8 *p, UINT8 *p_msg_end)
          BE_STREAM_TO_UINT16 (attr_id, p);
  
          /* Now, add the attribute value */
@@ -3065,7 +3516,7 @@ index ec20689e3..416085db4 100644
  
          if (!p)
          {
-@@ -830,7 +887,7 @@ tSDP_DISC_REC *add_record (tSDP_DISCOVERY_DB *p_db, BD_ADDR p_bda)
+@@ -830,7 +902,7 @@ tSDP_DISC_REC *add_record (tSDP_DISCOVERY_DB *p_db, BD_ADDR p_bda)
  ** Returns          pointer to next byte in data stream
  **
  *******************************************************************************/
@@ -3074,7 +3525,7 @@ index ec20689e3..416085db4 100644
                          UINT16 attr_id, tSDP_DISC_ATTR *p_parent_attr, UINT8 nest_level)
  {
      tSDP_DISC_ATTR  *p_attr;
-@@ -839,7 +896,7 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
+@@ -839,14 +911,18 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
      UINT16          attr_type;
      UINT16          id;
      UINT8           type;
@@ -3083,7 +3534,20 @@ index ec20689e3..416085db4 100644
      UINT8           is_additional_list = nest_level & SDP_ADDITIONAL_LIST_MASK;
  
      nest_level &= ~(SDP_ADDITIONAL_LIST_MASK);
-@@ -856,6 +913,13 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
+ 
+     type = *p++;
+-    p = sdpu_get_len_from_type (p, type, &attr_len);
+-
++    p = sdpu_get_len_from_type(p, p_end, type, &attr_len);
++    if (p == NULL || (p + attr_len) > p_end)
++    {
++        SDP_TRACE_WARNING("%s: bad length in attr_rsp", __func__);
++        return NULL;
++    }
+     attr_len &= SDP_DISC_ATTR_LEN_MASK;
+     attr_type = (type >> 3) & 0x0f;
+ 
+@@ -856,6 +932,13 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
      else
          total_len = sizeof (tSDP_DISC_ATTR);
  
@@ -3097,7 +3561,7 @@ index ec20689e3..416085db4 100644
      /* Ensure it is a multiple of 4 */
      total_len = (total_len + 3) & ~3;
  
-@@ -882,18 +946,17 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
+@@ -882,18 +965,17 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
                  /* Reserve the memory for the attribute now, as we need to add sub-attributes */
                  p_db->p_free_mem += sizeof (tSDP_DISC_ATTR);
                  p_db->mem_free   -= sizeof (tSDP_DISC_ATTR);
@@ -3118,7 +3582,7 @@ index ec20689e3..416085db4 100644
  
                  break;
              }
-@@ -966,7 +1029,7 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
+@@ -966,7 +1048,7 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
              break;
          default:
              SDP_TRACE_WARNING ("SDP - bad len in UUID attr: %d", attr_len);
@@ -3127,7 +3591,7 @@ index ec20689e3..416085db4 100644
          }
          break;
  
-@@ -988,10 +1051,10 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
+@@ -988,10 +1070,10 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
              nest_level |= SDP_ADDITIONAL_LIST_MASK;
          /* SDP_TRACE_DEBUG ("SDP - attr nest level:0x%x(finish)", nest_level); */
  
@@ -3140,7 +3604,7 @@ index ec20689e3..416085db4 100644
  
              if (!p)
                  return (NULL);
-@@ -1011,7 +1074,7 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
+@@ -1011,7 +1093,7 @@ static UINT8 *add_attr (UINT8 *p, tSDP_DISCOVERY_DB *p_db, tSDP_DISC_REC *p_rec,
              break;
          default:
              SDP_TRACE_WARNING ("SDP - bad len in boolean attr: %d", attr_len);
@@ -3392,7 +3856,7 @@ index 627f4cf18..64a1b9f86 100644
                                                               &p_ccb->cont_info.attr_offset);
  
 diff --git a/stack/sdp/sdp_utils.c b/stack/sdp/sdp_utils.c
-index a6f0ba6a9..6b503cb70 100644
+index a6f0ba6a9..6c7e3b8f0 100644
 --- a/stack/sdp/sdp_utils.c
 +++ b/stack/sdp/sdp_utils.c
 @@ -120,8 +120,9 @@ tCONN_CB *sdpu_allocate_ccb (void)
@@ -3559,8 +4023,48 @@ index a6f0ba6a9..6b503cb70 100644
          if (attr_len == 2)
          {
              BE_STREAM_TO_UINT16 (p_seq->attr_entry[p_seq->num_attr].start, p);
+@@ -577,7 +600,8 @@ UINT8 *sdpu_extract_attr_seq (UINT8 *p, UINT16 param_len, tSDP_ATTR_SEQ *p_seq)
+ ** Returns          void
+ **
+ *******************************************************************************/
+-UINT8 *sdpu_get_len_from_type (UINT8 *p, UINT8 type, UINT32 *p_len)
++UINT8 *sdpu_get_len_from_type (UINT8 *p, UINT8 *p_end, UINT8 type,
++                               UINT32 *p_len)
+ {
+     UINT8   u8;
+     UINT16  u16;
+@@ -601,14 +625,29 @@ UINT8 *sdpu_get_len_from_type (UINT8 *p, UINT8 type, UINT32 *p_len)
+         *p_len = 16;
+         break;
+     case SIZE_IN_NEXT_BYTE:
++        if (p + 1 > p_end)
++        {
++            *p_len = 0;
++            return NULL;
++        }
+         BE_STREAM_TO_UINT8 (u8, p);
+         *p_len = u8;
+         break;
+     case SIZE_IN_NEXT_WORD:
++        if (p + 2 > p_end)
++        {
++            *p_len = 0;
++            return NULL;
++        }
+         BE_STREAM_TO_UINT16 (u16, p);
+         *p_len = u16;
+         break;
+     case SIZE_IN_NEXT_LONG:
++        if (p + 4 > p_end)
++        {
++            *p_len = 0;
++            return NULL;
++        }
+         BE_STREAM_TO_UINT32 (u32, p);
+         *p_len = (UINT16) u32;
+         break;
 diff --git a/stack/sdp/sdpint.h b/stack/sdp/sdpint.h
-index 05414cd3c..71dab9265 100644
+index 05414cd3c..b0548f5b9 100644
 --- a/stack/sdp/sdpint.h
 +++ b/stack/sdp/sdpint.h
 @@ -246,6 +246,7 @@ extern tSDP_CB *sdp_cb_ptr;
@@ -3571,6 +4075,15 @@ index 05414cd3c..71dab9265 100644
  extern void     sdp_disconnect (tCONN_CB*p_ccb, UINT16 reason);
  
  #if (defined(SDP_DEBUG) && SDP_DEBUG == TRUE)
+@@ -281,7 +282,7 @@ extern void      sdpu_build_n_send_error (tCONN_CB *p_ccb, UINT16 trans_num, UIN
+ extern UINT8    *sdpu_extract_attr_seq (UINT8 *p, UINT16 param_len, tSDP_ATTR_SEQ *p_seq);
+ extern UINT8    *sdpu_extract_uid_seq (UINT8 *p, UINT16 param_len, tSDP_UUID_SEQ *p_seq);
+ 
+-extern UINT8    *sdpu_get_len_from_type (UINT8 *p, UINT8 type, UINT32 *p_len);
++extern UINT8    *sdpu_get_len_from_type (UINT8 *p, UINT8 *p_end, UINT8 type, UINT32 *p_len);
+ extern BOOLEAN  sdpu_is_base_uuid (UINT8 *p_uuid);
+ extern BOOLEAN  sdpu_compare_uuid_arrays (UINT8 *p_uuid1, UINT32 len1, UINT8 *p_uuid2, UINT16 len2);
+ extern BOOLEAN  sdpu_compare_bt_uuids (tBT_UUID *p_uuid1, tBT_UUID *p_uuid2);
 diff --git a/stack/smp/p_256_ecc_pp.c b/stack/smp/p_256_ecc_pp.c
 index 2eaebd4eb..832ce11e7 100644
 --- a/stack/smp/p_256_ecc_pp.c

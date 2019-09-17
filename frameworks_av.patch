@@ -1,5 +1,5 @@
 diff --git a/camera/ICameraClient.cpp b/camera/ICameraClient.cpp
-index 68cbfb8e4..8a7430fd1 100644
+index 68cbfb8e43..8a7430fd15 100644
 --- a/camera/ICameraClient.cpp
 +++ b/camera/ICameraClient.cpp
 @@ -50,7 +50,12 @@ public:
@@ -34,7 +34,7 @@ index 68cbfb8e4..8a7430fd1 100644
              return NO_ERROR;
          } break;
 diff --git a/camera/cameraserver/Android.mk b/camera/cameraserver/Android.mk
-index 7e36c5e74..aca7a190c 100644
+index 7e36c5e74a..aca7a190c6 100644
 --- a/camera/cameraserver/Android.mk
 +++ b/camera/cameraserver/Android.mk
 @@ -14,6 +14,9 @@
@@ -53,7 +53,7 @@ index 7e36c5e74..aca7a190c 100644
  include $(BUILD_EXECUTABLE)
 +endif
 diff --git a/camera/cameraserver/main_cameraserver.cpp b/camera/cameraserver/main_cameraserver.cpp
-index f4be468e4..ea80ad49d 100644
+index f4be468e4e..ea80ad49d0 100644
 --- a/camera/cameraserver/main_cameraserver.cpp
 +++ b/camera/cameraserver/main_cameraserver.cpp
 @@ -31,5 +31,6 @@ int main(int argc __unused, char** argv __unused)
@@ -64,7 +64,7 @@ index f4be468e4..ea80ad49d 100644
      IPCThreadState::self()->joinThreadPool();
  }
 diff --git a/camera/ndk/NdkCaptureRequest.cpp b/camera/ndk/NdkCaptureRequest.cpp
-index 77b9a3390..7c3795502 100644
+index 77b9a3390f..7c37955027 100644
 --- a/camera/ndk/NdkCaptureRequest.cpp
 +++ b/camera/ndk/NdkCaptureRequest.cpp
 @@ -51,8 +51,13 @@ camera_status_t ACaptureRequest_addTarget(
@@ -98,7 +98,7 @@ index 77b9a3390..7c3795502 100644
      }
      req->targets->mOutputs.erase(*target);
 diff --git a/cmds/stagefright/stagefright.cpp b/cmds/stagefright/stagefright.cpp
-index ca68722c5..cd284f697 100644
+index ca68722c5a..cd284f6972 100644
 --- a/cmds/stagefright/stagefright.cpp
 +++ b/cmds/stagefright/stagefright.cpp
 @@ -1037,6 +1037,10 @@ int main(int argc, char **argv) {
@@ -124,7 +124,7 @@ index ca68722c5..cd284f697 100644
          }
  
 diff --git a/cmds/stagefright/stream.cpp b/cmds/stagefright/stream.cpp
-index bca383211..cf593577f 100644
+index bca3832111..cf593577f3 100644
 --- a/cmds/stagefright/stream.cpp
 +++ b/cmds/stagefright/stream.cpp
 @@ -171,7 +171,8 @@ MyConvertingStreamSource::MyConvertingStreamSource(const char *filename)
@@ -152,7 +152,7 @@ index bca383211..cf593577f 100644
  
      CHECK_EQ(mWriter->start(), (status_t)OK);
 diff --git a/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.cpp b/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.cpp
-index 01f8d6570..f7106b275 100644
+index 01f8d65702..f7106b275e 100644
 --- a/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.cpp
 +++ b/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.cpp
 @@ -36,6 +36,11 @@ android::status_t AesCtrDecryptor::decrypt(const android::Vector<uint8_t>& key,
@@ -168,7 +168,7 @@ index 01f8d6570..f7106b275 100644
      AES_KEY opensslKey;
      AES_set_encrypt_key(key.array(), kBlockBitCount, &opensslKey);
 diff --git a/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.h b/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.h
-index b416266dd..edb84458a 100644
+index b416266ddf..edb84458a7 100644
 --- a/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.h
 +++ b/drm/mediadrm/plugins/clearkey/AesCtrDecryptor.h
 @@ -18,6 +18,7 @@
@@ -180,7 +180,7 @@ index b416266dd..edb84458a 100644
  #include <utils/Errors.h>
  #include <utils/Vector.h>
 diff --git a/drm/mediadrm/plugins/clearkey/tests/AesCtrDecryptorUnittest.cpp b/drm/mediadrm/plugins/clearkey/tests/AesCtrDecryptorUnittest.cpp
-index 039e40226..5db8290a9 100644
+index 039e40226b..5db8290a91 100644
 --- a/drm/mediadrm/plugins/clearkey/tests/AesCtrDecryptorUnittest.cpp
 +++ b/drm/mediadrm/plugins/clearkey/tests/AesCtrDecryptorUnittest.cpp
 @@ -34,7 +34,7 @@ class AesCtrDecryptorTest : public ::testing::Test {
@@ -261,7 +261,7 @@ index 039e40226..5db8290a9 100644
      const size_t kTotalSize = 64;
      const size_t kNumSubsamples = 1;
 diff --git a/include/media/IAudioPolicyService.h b/include/media/IAudioPolicyService.h
-index 0e9e3bc89..9ffcc77f0 100644
+index 0e9e3bc89b..9ffcc77f0e 100644
 --- a/include/media/IAudioPolicyService.h
 +++ b/include/media/IAudioPolicyService.h
 @@ -181,6 +181,10 @@ public:
@@ -276,7 +276,7 @@ index 0e9e3bc89..9ffcc77f0 100644
  
  // ----------------------------------------------------------------------------
 diff --git a/include/media/IMediaExtractor.h b/include/media/IMediaExtractor.h
-index 34b15e928..743ef7f83 100644
+index 34b15e9287..743ef7f834 100644
 --- a/include/media/IMediaExtractor.h
 +++ b/include/media/IMediaExtractor.h
 @@ -30,6 +30,9 @@ public:
@@ -290,7 +290,7 @@ index 34b15e928..743ef7f83 100644
  
      enum GetTrackMetaDataFlags {
 diff --git a/include/media/MediaPlayerInterface.h b/include/media/MediaPlayerInterface.h
-index 4977efd65..c1bd8eb3e 100644
+index 4977efd65f..c1bd8eb3ee 100644
 --- a/include/media/MediaPlayerInterface.h
 +++ b/include/media/MediaPlayerInterface.h
 @@ -65,14 +65,17 @@ enum player_type {
@@ -365,7 +365,7 @@ index 4977efd65..c1bd8eb3e 100644
  
  // Implement this class for media players that use the AudioFlinger software mixer
 diff --git a/include/media/stagefright/MediaBufferGroup.h b/include/media/stagefright/MediaBufferGroup.h
-index 30514062d..870bb9b9d 100644
+index 30514062da..870bb9b9db 100644
 --- a/include/media/stagefright/MediaBufferGroup.h
 +++ b/include/media/stagefright/MediaBufferGroup.h
 @@ -49,7 +49,10 @@ public:
@@ -381,7 +381,7 @@ index 30514062d..870bb9b9d 100644
      size_t buffers() const { return mBuffers.size(); }
  
 diff --git a/media/libeffects/downmix/EffectDownmix.c b/media/libeffects/downmix/EffectDownmix.c
-index 9823c5516..cb4be7503 100644
+index 9823c55167..cb4be75032 100644
 --- a/media/libeffects/downmix/EffectDownmix.c
 +++ b/media/libeffects/downmix/EffectDownmix.c
 @@ -445,6 +445,10 @@ static int Downmix_Command(effect_handle_t self, uint32_t cmdCode, uint32_t cmdS
@@ -396,7 +396,7 @@ index 9823c5516..cb4be7503 100644
                  cmd->vsize, cmd->data + sizeof(int32_t));
          break;
 diff --git a/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp b/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp
-index dcf3fa0a5..8a248e50c 100644
+index dcf3fa0a5e..8a248e50cf 100644
 --- a/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp
 +++ b/media/libeffects/lvm/wrapper/Bundle/EffectBundle.cpp
 @@ -33,6 +33,15 @@
@@ -1753,7 +1753,7 @@ index dcf3fa0a5..8a248e50c 100644
              //ALOGV("\tEffect_command cmdCode Case: EFFECT_CMD_SET_PARAM end");
          } break;
 diff --git a/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp b/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp
-index 4dc8b4592..80c8a3878 100644
+index 4dc8b45926..80c8a3878f 100644
 --- a/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp
 +++ b/media/libeffects/lvm/wrapper/Reverb/EffectReverb.cpp
 @@ -180,12 +180,13 @@ int  Reverb_init            (ReverbContext *pContext);
@@ -1852,7 +1852,7 @@ index 4dc8b4592..80c8a3878 100644
  
          case EFFECT_CMD_ENABLE:
 diff --git a/media/libmedia/IAudioPolicyService.cpp b/media/libmedia/IAudioPolicyService.cpp
-index 6405d6de5..be826abda 100644
+index 6405d6de58..be826abda0 100644
 --- a/media/libmedia/IAudioPolicyService.cpp
 +++ b/media/libmedia/IAudioPolicyService.cpp
 @@ -873,7 +873,7 @@ status_t BnAudioPolicyService::onTransact(
@@ -2024,7 +2024,7 @@ index 6405d6de5..be826abda 100644
  
  } // namespace android
 diff --git a/media/libmedia/ICrypto.cpp b/media/libmedia/ICrypto.cpp
-index 302e6ee9a..0045cffc6 100644
+index 302e6ee9a9..0045cffc6e 100644
 --- a/media/libmedia/ICrypto.cpp
 +++ b/media/libmedia/ICrypto.cpp
 @@ -199,8 +199,13 @@ IMPLEMENT_META_INTERFACE(Crypto, "android.hardware.ICrypto");
@@ -2044,7 +2044,7 @@ index 302e6ee9a..0045cffc6 100644
  
  void BnCrypto::writeVector(Parcel *reply, Vector<uint8_t> const &vector) const {
 diff --git a/media/libmedia/IDataSource.cpp b/media/libmedia/IDataSource.cpp
-index 51c9938f6..5ad39fe81 100644
+index 51c9938f66..5ad39fe81c 100644
 --- a/media/libmedia/IDataSource.cpp
 +++ b/media/libmedia/IDataSource.cpp
 @@ -54,8 +54,16 @@ struct BpDataSource : public BpInterface<IDataSource> {
@@ -2067,7 +2067,7 @@ index 51c9938f6..5ad39fe81 100644
  
      virtual status_t getSize(off64_t* size) {
 diff --git a/media/libmedia/IDrm.cpp b/media/libmedia/IDrm.cpp
-index 51a113031..393286dcf 100644
+index 51a113031d..393286dcf8 100644
 --- a/media/libmedia/IDrm.cpp
 +++ b/media/libmedia/IDrm.cpp
 @@ -559,8 +559,13 @@ IMPLEMENT_META_INTERFACE(Drm, "android.drm.IDrm");
@@ -2087,7 +2087,7 @@ index 51a113031..393286dcf 100644
  
  void BnDrm::writeVector(Parcel *reply, Vector<uint8_t> const &vector) const {
 diff --git a/media/libmedia/IMediaExtractor.cpp b/media/libmedia/IMediaExtractor.cpp
-index 72d1d7c57..744af1be0 100644
+index 72d1d7c57f..744af1be00 100644
 --- a/media/libmedia/IMediaExtractor.cpp
 +++ b/media/libmedia/IMediaExtractor.cpp
 @@ -23,6 +23,7 @@
@@ -2165,7 +2165,7 @@ index 72d1d7c57..744af1be0 100644
      }
      write(fd, out.string(), out.size());
 diff --git a/media/libmediaplayerservice/MediaPlayerFactory.cpp b/media/libmediaplayerservice/MediaPlayerFactory.cpp
-index 605c71014..f5ec20c38 100644
+index 605c71014b..f5ec20c389 100644
 --- a/media/libmediaplayerservice/MediaPlayerFactory.cpp
 +++ b/media/libmediaplayerservice/MediaPlayerFactory.cpp
 @@ -127,8 +127,7 @@ player_type MediaPlayerFactory::getPlayerType(const sp<IMediaPlayer>& client,
@@ -2188,7 +2188,7 @@ index 605c71014..f5ec20c38 100644
          ALOGE("Failed to create player object of type %d, initCheck failed"
                " (res = %d)", playerType, init_result);
 diff --git a/media/libmediaplayerservice/MediaPlayerFactory.h b/media/libmediaplayerservice/MediaPlayerFactory.h
-index e22a56fe6..e88700cf5 100644
+index e22a56fe6e..e88700cf58 100644
 --- a/media/libmediaplayerservice/MediaPlayerFactory.h
 +++ b/media/libmediaplayerservice/MediaPlayerFactory.h
 @@ -65,8 +65,7 @@ class MediaPlayerFactory {
@@ -2202,7 +2202,7 @@ index e22a56fe6..e88700cf5 100644
  
      static void registerBuiltinFactories();
 diff --git a/media/libmediaplayerservice/MediaPlayerService.cpp b/media/libmediaplayerservice/MediaPlayerService.cpp
-index bd16e91e3..7196f420f 100644
+index bd16e91e36..7196f420ff 100644
 --- a/media/libmediaplayerservice/MediaPlayerService.cpp
 +++ b/media/libmediaplayerservice/MediaPlayerService.cpp
 @@ -82,6 +82,9 @@
@@ -2412,7 +2412,7 @@ index bd16e91e3..7196f420f 100644
          usleep(interval);
      }
 diff --git a/media/libmediaplayerservice/MediaPlayerService.h b/media/libmediaplayerservice/MediaPlayerService.h
-index 7a41d9cfe..99b1d4dfa 100644
+index 7a41d9cfe4..99b1d4dfa1 100644
 --- a/media/libmediaplayerservice/MediaPlayerService.h
 +++ b/media/libmediaplayerservice/MediaPlayerService.h
 @@ -49,7 +49,7 @@ class MediaRecorderClient;
@@ -2526,7 +2526,7 @@ index 7a41d9cfe..99b1d4dfa 100644
      }; // Client
  
 diff --git a/media/libmediaplayerservice/nuplayer/NuPlayer.cpp b/media/libmediaplayerservice/nuplayer/NuPlayer.cpp
-index dc4e5d4a3..b64d899b1 100644
+index dc4e5d4a36..b64d899b13 100644
 --- a/media/libmediaplayerservice/nuplayer/NuPlayer.cpp
 +++ b/media/libmediaplayerservice/nuplayer/NuPlayer.cpp
 @@ -1534,6 +1534,7 @@ void NuPlayer::restartAudio(
@@ -2548,8 +2548,66 @@ index dc4e5d4a3..b64d899b1 100644
  }
  
  void NuPlayer::determineAudioModeChange(const sp<AMessage> &audioFormat) {
+diff --git a/media/libmediaplayerservice/nuplayer/NuPlayerCCDecoder.cpp b/media/libmediaplayerservice/nuplayer/NuPlayerCCDecoder.cpp
+index 13716cf4c7..eec1731c88 100644
+--- a/media/libmediaplayerservice/nuplayer/NuPlayerCCDecoder.cpp
++++ b/media/libmediaplayerservice/nuplayer/NuPlayerCCDecoder.cpp
+@@ -308,6 +308,11 @@ bool NuPlayer::CCDecoder::extractFromMPEGUserData(const sp<ABuffer> &accessUnit)
+     const size_t *userData = (size_t *)mpegUserData->data();
+ 
+     for (size_t i = 0; i < mpegUserData->size() / sizeof(size_t); ++i) {
++        if (accessUnit->size() < userData[i]) {
++            ALOGW("b/129068792, skip invalid offset for user data");
++            android_errorWriteLog(0x534e4554, "129068792");
++            continue;
++        }
+         trackAdded |= parseMPEGUserDataUnit(
+                 timeUs, accessUnit->data() + userData[i], accessUnit->size() - userData[i]);
+     }
+@@ -317,6 +322,12 @@ bool NuPlayer::CCDecoder::extractFromMPEGUserData(const sp<ABuffer> &accessUnit)
+ 
+ // returns true if a new CC track is found
+ bool NuPlayer::CCDecoder::parseMPEGUserDataUnit(int64_t timeUs, const uint8_t *data, size_t size) {
++    if (size < 9) {
++        ALOGW("b/129068792, MPEG user data size too small %zu", size);
++        android_errorWriteLog(0x534e4554, "129068792");
++        return false;
++    }
++
+     ABitReader br(data + 4, 5);
+ 
+     uint32_t user_identifier = br.getBits(32);
+@@ -369,8 +380,14 @@ bool NuPlayer::CCDecoder::parseMPEGCCData(int64_t timeUs, const uint8_t *data, s
+                 mDTVCCPacket->setRange(0, mDTVCCPacket->size() + 2);
+                 br.skipBits(16);
+             } else if (mDTVCCPacket->size() > 0 && cc_type == 2) {
+-                memcpy(mDTVCCPacket->data() + mDTVCCPacket->size(), br.data(), 2);
+-                mDTVCCPacket->setRange(0, mDTVCCPacket->size() + 2);
++                if (mDTVCCPacket->capacity() - mDTVCCPacket->size() >= 2) {
++                    memcpy(mDTVCCPacket->data() + mDTVCCPacket->size(), br.data(), 2);
++                    mDTVCCPacket->setRange(0, mDTVCCPacket->size() + 2);
++                } else {
++                    ALOGW("b/129068792, skip CC due to too much data(%zu, %zu)",
++                          mDTVCCPacket->capacity(), mDTVCCPacket->size());
++                    android_errorWriteLog(0x534e4554, "129068792");
++                }
+                 br.skipBits(16);
+             } else if (cc_type == 0 || cc_type == 1) {
+                 uint8_t cc_data_1 = br.getBits(8) & 0x7f;
+@@ -457,6 +474,11 @@ bool NuPlayer::CCDecoder::parseDTVCCPacket(int64_t timeUs, const uint8_t *data,
+             size_t trackIndex = getTrackIndex(kTrackTypeCEA708, service_number, &trackAdded);
+             if (mSelectedTrack == (ssize_t)trackIndex) {
+                 sp<ABuffer> ccPacket = new ABuffer(block_size);
++                if (ccPacket->capacity() == 0) {
++                    ALOGW("b/129068792, no memory available, %zu", block_size);
++                    android_errorWriteLog(0x534e4554, "129068792");
++                    return false;
++                }
+                 memcpy(ccPacket->data(), br.data(), block_size);
+                 mCCMap.add(timeUs, ccPacket);
+             }
 diff --git a/media/libmediaplayerservice/nuplayer/NuPlayerDecoder.cpp b/media/libmediaplayerservice/nuplayer/NuPlayerDecoder.cpp
-index 594128c83..caaa7356b 100644
+index 594128c835..caaa7356b9 100644
 --- a/media/libmediaplayerservice/nuplayer/NuPlayerDecoder.cpp
 +++ b/media/libmediaplayerservice/nuplayer/NuPlayerDecoder.cpp
 @@ -631,6 +631,11 @@ bool NuPlayer::Decoder::handleAnOutputBuffer(
@@ -2565,7 +2623,7 @@ index 594128c83..caaa7356b 100644
          for (size_t i = mOutputBuffers.size(); i <= index; ++i) {
              mOutputBuffers.add();
 diff --git a/media/libstagefright/AACExtractor.cpp b/media/libstagefright/AACExtractor.cpp
-index 7449aa7d9..3ba18586b 100644
+index 7449aa7d90..3ba18586b4 100644
 --- a/media/libstagefright/AACExtractor.cpp
 +++ b/media/libstagefright/AACExtractor.cpp
 @@ -294,6 +294,10 @@ status_t AACSource::read(
@@ -2580,7 +2638,7 @@ index 7449aa7d9..3ba18586b 100644
  
              mOffset = mOffsetVector.itemAt(seekFrame);
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 37fd5a51e..337fb2de5 100644
+index 37fd5a51e3..337fb2de5e 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
 @@ -804,13 +804,22 @@ status_t ACodec::allocateBuffersOnPort(OMX_U32 portIndex) {
@@ -2740,7 +2798,7 @@ index 37fd5a51e..337fb2de5 100644
  
      if (err == OK) {
 diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
-index 38485021e..07f926c77 100644
+index 38485021e0..07f926c77b 100644
 --- a/media/libstagefright/Android.mk
 +++ b/media/libstagefright/Android.mk
 @@ -102,6 +102,10 @@ LOCAL_SHARED_LIBRARIES := \
@@ -2777,7 +2835,7 @@ index 38485021e..07f926c77 100644
  LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
  
 diff --git a/media/libstagefright/CameraSource.cpp b/media/libstagefright/CameraSource.cpp
-index 893da89bb..215245472 100644
+index 893da89bbb..215245472d 100644
 --- a/media/libstagefright/CameraSource.cpp
 +++ b/media/libstagefright/CameraSource.cpp
 @@ -950,6 +950,14 @@ void CameraSource::releaseRecordingFrame(const sp<IMemory>& frame) {
@@ -2816,7 +2874,7 @@ index 893da89bb..215245472 100644
      // buffer queue.
      switch (mVideoBufferMode) {
 diff --git a/media/libstagefright/MPEG4Extractor.cpp b/media/libstagefright/MPEG4Extractor.cpp
-index 544171496..d1603c1ef 100644
+index 544171496c..d1603c1efe 100644
 --- a/media/libstagefright/MPEG4Extractor.cpp
 +++ b/media/libstagefright/MPEG4Extractor.cpp
 @@ -72,6 +72,7 @@ public:
@@ -3079,7 +3137,7 @@ index 544171496..d1603c1ef 100644
          }
      }
 diff --git a/media/libstagefright/MPEG4Writer.cpp b/media/libstagefright/MPEG4Writer.cpp
-index 5e96c2b25..6ca2abb93 100644
+index 5e96c2b251..6ca2abb937 100644
 --- a/media/libstagefright/MPEG4Writer.cpp
 +++ b/media/libstagefright/MPEG4Writer.cpp
 @@ -1674,10 +1674,12 @@ void MPEG4Writer::Track::getCodecSpecificDataFromInputFormatIfPossible() {
@@ -3099,7 +3157,7 @@ index 5e96c2b25..6ca2abb93 100644
      }
      if (data != NULL && copyCodecSpecificData((uint8_t *)data, size) == OK) {
 diff --git a/media/libstagefright/MediaCodecList.cpp b/media/libstagefright/MediaCodecList.cpp
-index 0fb5072a4..a25c47d12 100644
+index 0fb5072a45..a25c47d127 100644
 --- a/media/libstagefright/MediaCodecList.cpp
 +++ b/media/libstagefright/MediaCodecList.cpp
 @@ -1165,7 +1165,9 @@ void MediaCodecList::findMatchingCodecs(
@@ -3114,7 +3172,7 @@ index 0fb5072a4..a25c47d12 100644
              ALOGV("matching '%s'", componentName.c_str());
          }
 diff --git a/media/libstagefright/MediaSource.cpp b/media/libstagefright/MediaSource.cpp
-index a17757a8e..f1ad5c573 100644
+index a17757a8eb..f1ad5c5731 100644
 --- a/media/libstagefright/MediaSource.cpp
 +++ b/media/libstagefright/MediaSource.cpp
 @@ -22,4 +22,10 @@ MediaSource::MediaSource() {}
@@ -3129,7 +3187,7 @@ index a17757a8e..f1ad5c573 100644
 +}
  }  // namespace android
 diff --git a/media/libstagefright/MidiExtractor.cpp b/media/libstagefright/MidiExtractor.cpp
-index 7930bbb63..214513403 100644
+index 7930bbb63c..214513403b 100644
 --- a/media/libstagefright/MidiExtractor.cpp
 +++ b/media/libstagefright/MidiExtractor.cpp
 @@ -246,8 +246,9 @@ MediaBuffer* MidiEngine::readBuffer() {
@@ -3145,7 +3203,7 @@ index 7930bbb63..214513403 100644
          p += numRendered * mEasConfig->numChannels;
          numBytesOutput += numRendered * mEasConfig->numChannels * sizeof(EAS_PCM);
 diff --git a/media/libstagefright/NuMediaExtractor.cpp b/media/libstagefright/NuMediaExtractor.cpp
-index 4558b3c1c..c3e8f2047 100644
+index 4558b3c1cf..c3e8f20473 100644
 --- a/media/libstagefright/NuMediaExtractor.cpp
 +++ b/media/libstagefright/NuMediaExtractor.cpp
 @@ -305,6 +305,10 @@ status_t NuMediaExtractor::selectTrack(size_t index) {
@@ -3160,7 +3218,7 @@ index 4558b3c1c..c3e8f2047 100644
      if (ret != OK) {
          return ret;
 diff --git a/media/libstagefright/OggExtractor.cpp b/media/libstagefright/OggExtractor.cpp
-index ebbe5102e..752f2fe20 100644
+index ebbe5102ed..752f2fe20c 100644
 --- a/media/libstagefright/OggExtractor.cpp
 +++ b/media/libstagefright/OggExtractor.cpp
 @@ -578,6 +578,10 @@ status_t MyOpusExtractor::readNextPacket(MediaBuffer **out) {
@@ -3175,7 +3233,7 @@ index ebbe5102e..752f2fe20 100644
              }
              curGranulePosition = mCurrentPage.mGranulePosition;
 diff --git a/media/libstagefright/SampleTable.cpp b/media/libstagefright/SampleTable.cpp
-index ee5fdf041..597896b28 100644
+index ee5fdf0419..597896b284 100644
 --- a/media/libstagefright/SampleTable.cpp
 +++ b/media/libstagefright/SampleTable.cpp
 @@ -517,6 +517,8 @@ status_t SampleTable::setSyncSampleParams(off64_t data_offset, size_t data_size)
@@ -3202,7 +3260,7 @@ index ee5fdf041..597896b28 100644
  }  // namespace android
 -
 diff --git a/media/libstagefright/StagefrightMetadataRetriever.cpp b/media/libstagefright/StagefrightMetadataRetriever.cpp
-index be5067d59..2fef7caeb 100644
+index be5067d59d..2fef7caebe 100644
 --- a/media/libstagefright/StagefrightMetadataRetriever.cpp
 +++ b/media/libstagefright/StagefrightMetadataRetriever.cpp
 @@ -483,6 +483,10 @@ VideoFrame *StagefrightMetadataRetriever::getFrameAtTime(
@@ -3238,7 +3296,7 @@ index be5067d59..2fef7caeb 100644
          int64_t durationUs;
          if (trackMeta->findInt64(kKeyDuration, &durationUs)) {
 diff --git a/media/libstagefright/SurfaceMediaSource.cpp b/media/libstagefright/SurfaceMediaSource.cpp
-index 15ff5697d..547267ce0 100644
+index 15ff5697d9..547267ce07 100644
 --- a/media/libstagefright/SurfaceMediaSource.cpp
 +++ b/media/libstagefright/SurfaceMediaSource.cpp
 @@ -129,7 +129,11 @@ status_t SurfaceMediaSource::setFrameRate(int32_t fps)
@@ -3328,7 +3386,7 @@ index 15ff5697d..547267ce0 100644
                      mSlots[id].mGraphicBuffer->handle);
  
 diff --git a/media/libstagefright/VideoFrameScheduler.cpp b/media/libstagefright/VideoFrameScheduler.cpp
-index 03226c753..6819bba40 100644
+index 03226c753e..6819bba40c 100644
 --- a/media/libstagefright/VideoFrameScheduler.cpp
 +++ b/media/libstagefright/VideoFrameScheduler.cpp
 @@ -129,6 +129,11 @@ bool VideoFrameScheduler::PLL::fit(
@@ -3344,7 +3402,7 @@ index 03226c753..6819bba40 100644
      int64_t sumXX = 0;
      int64_t sumXY = 0;
 diff --git a/media/libstagefright/avc_utils.cpp b/media/libstagefright/avc_utils.cpp
-index 763381e1c..78aae8cc2 100644
+index 763381e1c7..78aae8cc24 100644
 --- a/media/libstagefright/avc_utils.cpp
 +++ b/media/libstagefright/avc_utils.cpp
 @@ -330,7 +330,7 @@ static sp<ABuffer> FindNAL(const uint8_t *data, size_t size, unsigned nalType) {
@@ -3369,7 +3427,7 @@ index 763381e1c..78aae8cc2 100644
          unsigned nalType = nalStart[0] & 0x1f;
  
 diff --git a/media/libstagefright/codecs/aacenc/SoftAACEncoder2.cpp b/media/libstagefright/codecs/aacenc/SoftAACEncoder2.cpp
-index f00a5d1b0..44415e2e0 100644
+index f00a5d1b0c..44415e2e01 100644
 --- a/media/libstagefright/codecs/aacenc/SoftAACEncoder2.cpp
 +++ b/media/libstagefright/codecs/aacenc/SoftAACEncoder2.cpp
 @@ -16,6 +16,7 @@
@@ -3413,7 +3471,7 @@ index f00a5d1b0..44415e2e0 100644
      mSentCodecSpecificData = false;
      mInputTimeUs = -1ll;
 diff --git a/media/libstagefright/codecs/aacenc/SoftAACEncoder2.h b/media/libstagefright/codecs/aacenc/SoftAACEncoder2.h
-index f1b81e18f..123fd253f 100644
+index f1b81e18f6..123fd253f7 100644
 --- a/media/libstagefright/codecs/aacenc/SoftAACEncoder2.h
 +++ b/media/libstagefright/codecs/aacenc/SoftAACEncoder2.h
 @@ -62,6 +62,7 @@ private:
@@ -3424,8 +3482,70 @@ index f1b81e18f..123fd253f 100644
      int64_t mInputTimeUs;
  
      bool mSawInputEOS;
+diff --git a/media/libstagefright/codecs/amrwbenc/Android.mk b/media/libstagefright/codecs/amrwbenc/Android.mk
+index 026006e23f..006a034007 100644
+--- a/media/libstagefright/codecs/amrwbenc/Android.mk
++++ b/media/libstagefright/codecs/amrwbenc/Android.mk
+@@ -92,7 +92,8 @@ LOCAL_ARM_MODE := arm
+ 
+ LOCAL_STATIC_LIBRARIES :=
+ 
+-LOCAL_SHARED_LIBRARIES :=
++LOCAL_SHARED_LIBRARIES := \
++        liblog
+ 
+ LOCAL_C_INCLUDES := \
+ 	frameworks/av/include \
+diff --git a/media/libstagefright/codecs/amrwbenc/SampleCode/Android.mk b/media/libstagefright/codecs/amrwbenc/SampleCode/Android.mk
+index 65d69a2c28..0d6549eea7 100644
+--- a/media/libstagefright/codecs/amrwbenc/SampleCode/Android.mk
++++ b/media/libstagefright/codecs/amrwbenc/SampleCode/Android.mk
+@@ -14,7 +14,8 @@ LOCAL_CFLAGS :=
+ 
+ LOCAL_SHARED_LIBRARIES := \
+     libstagefright \
+-    libdl
++    libdl \
++    liblog
+ 
+ LOCAL_STATIC_LIBRARIES := \
+     libstagefright_amrwbenc
+diff --git a/media/libstagefright/codecs/amrwbenc/src/c4t64fx.c b/media/libstagefright/codecs/amrwbenc/src/c4t64fx.c
+index 8cebb097bd..b26eedb508 100644
+--- a/media/libstagefright/codecs/amrwbenc/src/c4t64fx.c
++++ b/media/libstagefright/codecs/amrwbenc/src/c4t64fx.c
+@@ -47,6 +47,10 @@
+ 
+ #include "q_pulse.h"
+ 
++#undef LOG_TAG
++#define LOG_TAG "amrwbenc"
++#include <log/log.h>
++
+ static Word16 tipos[36] = {
+     0, 1, 2, 3,                            /* starting point &ipos[0], 1st iter */
+     1, 2, 3, 0,                            /* starting point &ipos[4], 2nd iter */
+@@ -745,11 +749,16 @@ void ACELP_4t64_fx(
+ 
+         i = (Word16)((vo_L_mult(track, NPMAXPT) >> 1));
+ 
+-        while (ind[i] >= 0)
++        while (i < NPMAXPT * NB_TRACK && ind[i] >= 0)
+         {
+             i += 1;
+         }
+-        ind[i] = index;
++        if (i < NPMAXPT * NB_TRACK) {
++            ind[i] = index;
++        } else {
++            ALOGE("b/132647222, OOB access in ind array track=%d i=%d", track, i);
++            android_errorWriteLog(0x534e4554, "132647222");
++        }
+     }
+ 
+     k = 0;
 diff --git a/media/libstagefright/codecs/avcdec/SoftAVCDec.cpp b/media/libstagefright/codecs/avcdec/SoftAVCDec.cpp
-index cecc52bb1..43ef4a455 100644
+index cecc52bb11..43ef4a455f 100644
 --- a/media/libstagefright/codecs/avcdec/SoftAVCDec.cpp
 +++ b/media/libstagefright/codecs/avcdec/SoftAVCDec.cpp
 @@ -318,10 +318,6 @@ status_t SoftAVC::initDecoder() {
@@ -3460,7 +3580,7 @@ index cecc52bb1..43ef4a455 100644
  
                  mReceivedEOS = true;
 diff --git a/media/libstagefright/codecs/avcenc/SoftAVCEnc.cpp b/media/libstagefright/codecs/avcenc/SoftAVCEnc.cpp
-index 5b06722fb..7bfa051ce 100644
+index 5b06722fbc..7bfa051ce8 100644
 --- a/media/libstagefright/codecs/avcenc/SoftAVCEnc.cpp
 +++ b/media/libstagefright/codecs/avcenc/SoftAVCEnc.cpp
 @@ -1191,6 +1191,12 @@ OMX_ERRORTYPE SoftAVC::setEncodeArgs(
@@ -3477,7 +3597,7 @@ index 5b06722fb..7bfa051ce 100644
  
          if (mInputDataIsMeta) {
 diff --git a/media/libstagefright/codecs/hevcdec/SoftHEVC.cpp b/media/libstagefright/codecs/hevcdec/SoftHEVC.cpp
-index 5c70387f4..194a078e1 100644
+index 5c70387f4e..194a078e12 100644
 --- a/media/libstagefright/codecs/hevcdec/SoftHEVC.cpp
 +++ b/media/libstagefright/codecs/hevcdec/SoftHEVC.cpp
 @@ -320,10 +320,6 @@ status_t SoftHEVC::initDecoder() {
@@ -3503,7 +3623,7 @@ index 5c70387f4..194a078e1 100644
  
      /* Reset the plugin state */
 diff --git a/media/libstagefright/codecs/m4v_h263/dec/src/vlc_decode.cpp b/media/libstagefright/codecs/m4v_h263/dec/src/vlc_decode.cpp
-index f7192b1c0..7202f982e 100644
+index f7192b1c0f..7202f982eb 100644
 --- a/media/libstagefright/codecs/m4v_h263/dec/src/vlc_decode.cpp
 +++ b/media/libstagefright/codecs/m4v_h263/dec/src/vlc_decode.cpp
 @@ -560,7 +560,7 @@ int PV_VlcDecMCBPC_com_inter_H263(BitstreamDecVideo *stream)
@@ -3516,7 +3636,7 @@ index f7192b1c0..7202f982e 100644
          return VLC_CODE_ERROR;
      }
 diff --git a/media/libstagefright/codecs/m4v_h263/enc/SoftMPEG4Encoder.cpp b/media/libstagefright/codecs/m4v_h263/enc/SoftMPEG4Encoder.cpp
-index d5a26d372..7d2131df0 100644
+index d5a26d3729..7d2131df07 100644
 --- a/media/libstagefright/codecs/m4v_h263/enc/SoftMPEG4Encoder.cpp
 +++ b/media/libstagefright/codecs/m4v_h263/enc/SoftMPEG4Encoder.cpp
 @@ -437,6 +437,14 @@ void SoftMPEG4Encoder::onQueueFilled(OMX_U32 /* portIndex */) {
@@ -3535,7 +3655,7 @@ index d5a26d372..7d2131df0 100644
              if (mInputDataIsMeta) {
                  inputData =
 diff --git a/media/libstagefright/codecs/mp3dec/src/pvmp3_decode_header.cpp b/media/libstagefright/codecs/mp3dec/src/pvmp3_decode_header.cpp
-index d443b7ccf..bc5fd7952 100644
+index d443b7ccfe..bc5fd79526 100644
 --- a/media/libstagefright/codecs/mp3dec/src/pvmp3_decode_header.cpp
 +++ b/media/libstagefright/codecs/mp3dec/src/pvmp3_decode_header.cpp
 @@ -184,7 +184,7 @@ ERROR_CODE pvmp3_decode_header(tmp3Bits  *inputStream,
@@ -3548,7 +3668,7 @@ index d443b7ccf..bc5fd7952 100644
          err = UNSUPPORTED_FREE_BITRATE;
      }
 diff --git a/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.cpp b/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.cpp
-index 5ed037ac7..7297f40fe 100644
+index 5ed037ac77..7297f40fed 100644
 --- a/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.cpp
 +++ b/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.cpp
 @@ -68,6 +68,7 @@ SoftMPEG2::SoftMPEG2(
@@ -3689,7 +3809,7 @@ index 5ed037ac7..7297f40fe 100644
                  mTimeStampsValid[timeStampIdx] = false;
  
 diff --git a/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.h b/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.h
-index 700ef5f36..1285c5be4 100644
+index 700ef5f36a..1285c5be4a 100644
 --- a/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.h
 +++ b/media/libstagefright/codecs/mpeg2dec/SoftMPEG2.h
 @@ -106,6 +106,7 @@ private:
@@ -3701,7 +3821,7 @@ index 700ef5f36..1285c5be4 100644
      size_t mStride;
  
 diff --git a/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp b/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp
-index 56e1f7734..04d8dda07 100644
+index 56e1f7734e..04d8dda075 100644
 --- a/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp
 +++ b/media/libstagefright/codecs/on2/enc/SoftVPXEncoder.cpp
 @@ -731,6 +731,13 @@ void SoftVPXEncoder::onQueueFilled(OMX_U32 /* portIndex */) {
@@ -3734,7 +3854,7 @@ index 56e1f7734..04d8dda07 100644
                  ConvertYUV420SemiPlanarToYUV420Planar(
                          source, mConversionBuffer, mWidth, mHeight);
 diff --git a/media/libstagefright/foundation/MediaBuffer.cpp b/media/libstagefright/foundation/MediaBuffer.cpp
-index 16000ef5c..2c4a76211 100644
+index 16000ef5c5..2c4a762113 100644
 --- a/media/libstagefright/foundation/MediaBuffer.cpp
 +++ b/media/libstagefright/foundation/MediaBuffer.cpp
 @@ -155,6 +155,7 @@ size_t MediaBuffer::range_length() const {
@@ -3746,7 +3866,7 @@ index 16000ef5c..2c4a76211 100644
      CHECK((mGraphicBuffer != NULL) || (offset + length <= mSize));
  
 diff --git a/media/libstagefright/foundation/MediaBufferGroup.cpp b/media/libstagefright/foundation/MediaBufferGroup.cpp
-index 8e4d0641c..66992d72b 100644
+index 8e4d0641c2..66992d72bb 100644
 --- a/media/libstagefright/foundation/MediaBufferGroup.cpp
 +++ b/media/libstagefright/foundation/MediaBufferGroup.cpp
 @@ -105,6 +105,11 @@ MediaBufferGroup::~MediaBufferGroup() {
@@ -3779,7 +3899,7 @@ index 8e4d0641c..66992d72b 100644
      mCondition.signal();
  }
 diff --git a/media/libstagefright/foundation/base64.cpp b/media/libstagefright/foundation/base64.cpp
-index 7da7db941..cc8906406 100644
+index 7da7db9411..cc89064067 100644
 --- a/media/libstagefright/foundation/base64.cpp
 +++ b/media/libstagefright/foundation/base64.cpp
 @@ -78,8 +78,7 @@ sp<ABuffer> decodeBase64(const AString &s) {
@@ -3792,8 +3912,25 @@ index 7da7db941..cc8906406 100644
              if (j < outLen) { out[j++] = (accum >> 8) & 0xff; }
              if (j < outLen) { out[j++] = accum & 0xff; }
  
+diff --git a/media/libstagefright/httplive/HTTPDownloader.cpp b/media/libstagefright/httplive/HTTPDownloader.cpp
+index 861b85a64d..5d6634efa4 100644
+--- a/media/libstagefright/httplive/HTTPDownloader.cpp
++++ b/media/libstagefright/httplive/HTTPDownloader.cpp
+@@ -157,6 +157,12 @@ ssize_t HTTPDownloader::fetchBlock(
+                  buffer->size() + bufferRemaining);
+ 
+             sp<ABuffer> copy = new ABuffer(buffer->size() + bufferRemaining);
++            if (copy->data() == NULL) {
++                android_errorWriteLog(0x534e4554, "68399439");
++                ALOGE("not enough memory to download: requesting %zu + %zu",
++                        buffer->size(), bufferRemaining);
++                return NO_MEMORY;
++            }
+             memcpy(copy->data(), buffer->data(), buffer->size());
+             copy->setRange(0, buffer->size());
+ 
 diff --git a/media/libstagefright/httplive/LiveSession.cpp b/media/libstagefright/httplive/LiveSession.cpp
-index 7abc0197a..590146db9 100644
+index 7abc0197a8..590146db93 100644
 --- a/media/libstagefright/httplive/LiveSession.cpp
 +++ b/media/libstagefright/httplive/LiveSession.cpp
 @@ -157,6 +157,11 @@ bool LiveSession::BandwidthEstimator::estimateBandwidth(
@@ -3809,7 +3946,7 @@ index 7abc0197a..590146db9 100644
      while (mPrevEstimates.size() > 3) {
          mPrevEstimates.erase(mPrevEstimates.begin());
 diff --git a/media/libstagefright/httplive/M3UParser.cpp b/media/libstagefright/httplive/M3UParser.cpp
-index c04549ab0..a092a1bdc 100644
+index c04549ab0e..a092a1bdc9 100644
 --- a/media/libstagefright/httplive/M3UParser.cpp
 +++ b/media/libstagefright/httplive/M3UParser.cpp
 @@ -56,7 +56,7 @@ struct M3UParser::MediaGroup : public RefBase {
@@ -3948,7 +4085,7 @@ index c04549ab0..a092a1bdc 100644
              haveGroupURI = true;
          }
 diff --git a/media/libstagefright/httplive/M3UParser.h b/media/libstagefright/httplive/M3UParser.h
-index fa648ed7d..c85335abc 100644
+index fa648ed7d3..c85335abc2 100644
 --- a/media/libstagefright/httplive/M3UParser.h
 +++ b/media/libstagefright/httplive/M3UParser.h
 @@ -64,6 +64,7 @@ private:
@@ -3960,7 +4097,7 @@ index fa648ed7d..c85335abc 100644
  
      status_t mInitCheck;
 diff --git a/media/libstagefright/id3/ID3.cpp b/media/libstagefright/id3/ID3.cpp
-index 8b80ae949..ca2be5488 100644
+index 8b80ae9496..ca2be5488a 100644
 --- a/media/libstagefright/id3/ID3.cpp
 +++ b/media/libstagefright/id3/ID3.cpp
 @@ -328,12 +328,25 @@ struct id3_header {
@@ -4018,7 +4155,7 @@ index 8b80ae949..ca2be5488 100644
          char16_t *framedatacopy = NULL;
          if (*framedata == 0xfffe) {
 diff --git a/media/libstagefright/include/OMXNodeInstance.h b/media/libstagefright/include/OMXNodeInstance.h
-index 94cf15abd..dd396e812 100644
+index 94cf15abdd..dd396e8126 100644
 --- a/media/libstagefright/include/OMXNodeInstance.h
 +++ b/media/libstagefright/include/OMXNodeInstance.h
 @@ -175,7 +175,7 @@ private:
@@ -4039,7 +4176,7 @@ index 94cf15abd..dd396e812 100644
      // For debug support
      char *mName;
 diff --git a/media/libstagefright/include/SoftVideoEncoderOMXComponent.h b/media/libstagefright/include/SoftVideoEncoderOMXComponent.h
-index b43635deb..02555a2f3 100644
+index b43635deba..02555a2f34 100644
 --- a/media/libstagefright/include/SoftVideoEncoderOMXComponent.h
 +++ b/media/libstagefright/include/SoftVideoEncoderOMXComponent.h
 @@ -68,6 +68,8 @@ protected:
@@ -4052,7 +4189,7 @@ index b43635deb..02555a2f3 100644
          kInputPortIndex = 0,
          kOutputPortIndex = 1,
 diff --git a/media/libstagefright/mpeg2ts/ESQueue.cpp b/media/libstagefright/mpeg2ts/ESQueue.cpp
-index 96ca40509..c454a0e49 100644
+index 96ca405098..c454a0e49b 100644
 --- a/media/libstagefright/mpeg2ts/ESQueue.cpp
 +++ b/media/libstagefright/mpeg2ts/ESQueue.cpp
 @@ -716,6 +716,11 @@ sp<ABuffer> ElementaryStreamQueue::dequeueAccessUnitAAC() {
@@ -4098,7 +4235,7 @@ index 96ca40509..c454a0e49 100644
                  break;
              }
 diff --git a/media/libstagefright/omx/Android.mk b/media/libstagefright/omx/Android.mk
-index e4fbd815c..8fc788f4b 100644
+index e4fbd815c7..8fc788f4bc 100644
 --- a/media/libstagefright/omx/Android.mk
 +++ b/media/libstagefright/omx/Android.mk
 @@ -31,6 +31,12 @@ LOCAL_SHARED_LIBRARIES :=               \
@@ -4115,7 +4252,7 @@ index e4fbd815c..8fc788f4b 100644
  LOCAL_CFLAGS += -Werror -Wall
  LOCAL_CLANG := true
 diff --git a/media/libstagefright/omx/GraphicBufferSource.cpp b/media/libstagefright/omx/GraphicBufferSource.cpp
-index e1bcd285b..5f21eacfd 100644
+index e1bcd285ba..5f21eacfde 100644
 --- a/media/libstagefright/omx/GraphicBufferSource.cpp
 +++ b/media/libstagefright/omx/GraphicBufferSource.cpp
 @@ -736,6 +736,8 @@ bool GraphicBufferSource::repeatLatestBuffer_l() {
@@ -4128,7 +4265,7 @@ index e1bcd285b..5f21eacfd 100644
          if (mBufferUseCount[mLatestBufferId] == 0) {
              releaseBuffer(mLatestBufferId, mLatestBufferFrameNum,
 diff --git a/media/libstagefright/omx/OMXMaster.cpp b/media/libstagefright/omx/OMXMaster.cpp
-index 6132a2cf7..7f0d27008 100644
+index 6132a2cf74..7f0d27008e 100644
 --- a/media/libstagefright/omx/OMXMaster.cpp
 +++ b/media/libstagefright/omx/OMXMaster.cpp
 @@ -69,6 +69,7 @@ OMXMaster::~OMXMaster() {
@@ -4140,7 +4277,7 @@ index 6132a2cf7..7f0d27008 100644
  
  void OMXMaster::addPlugin(const char *libname) {
 diff --git a/media/libstagefright/omx/OMXNodeInstance.cpp b/media/libstagefright/omx/OMXNodeInstance.cpp
-index e7aaeadf9..18778f7a6 100644
+index e7aaeadf9c..18778f7a6d 100644
 --- a/media/libstagefright/omx/OMXNodeInstance.cpp
 +++ b/media/libstagefright/omx/OMXNodeInstance.cpp
 @@ -226,6 +226,8 @@ OMXNodeInstance::OMXNodeInstance(
@@ -4310,7 +4447,7 @@ index e7aaeadf9..18778f7a6 100644
      } else {
          // rangeLength and rangeOffset must be a subset of the allocated data in the buffer.
 diff --git a/media/libstagefright/omx/SimpleSoftOMXComponent.cpp b/media/libstagefright/omx/SimpleSoftOMXComponent.cpp
-index 7c975f7b5..76cbbc45d 100644
+index 7c975f7b5a..76cbbc45d0 100644
 --- a/media/libstagefright/omx/SimpleSoftOMXComponent.cpp
 +++ b/media/libstagefright/omx/SimpleSoftOMXComponent.cpp
 @@ -199,6 +199,13 @@ OMX_ERRORTYPE SimpleSoftOMXComponent::useBuffer(
@@ -4337,7 +4474,7 @@ index 7c975f7b5..76cbbc45d 100644
  
      CHECK_LT(port->mBuffers.size(), port->mDef.nBufferCountActual);
 diff --git a/media/libstagefright/omx/SoftVideoEncoderOMXComponent.cpp b/media/libstagefright/omx/SoftVideoEncoderOMXComponent.cpp
-index 0f9c11869..9d302ddbd 100644
+index 0f9c11869e..9d302ddbdf 100644
 --- a/media/libstagefright/omx/SoftVideoEncoderOMXComponent.cpp
 +++ b/media/libstagefright/omx/SoftVideoEncoderOMXComponent.cpp
 @@ -656,4 +656,17 @@ OMX_ERRORTYPE SoftVideoEncoderOMXComponent::getExtensionIndex(
@@ -4359,7 +4496,7 @@ index 0f9c11869..9d302ddbd 100644
 +
  }  // namespace android
 diff --git a/media/libstagefright/rtsp/APacketSource.cpp b/media/libstagefright/rtsp/APacketSource.cpp
-index cfafaa74b..a7545ad51 100644
+index cfafaa74bf..a7545ad51c 100644
 --- a/media/libstagefright/rtsp/APacketSource.cpp
 +++ b/media/libstagefright/rtsp/APacketSource.cpp
 @@ -377,8 +377,8 @@ static sp<ABuffer> MakeMPEG4VideoCodecSpecificData(
@@ -4373,8 +4510,21 @@ index cfafaa74b..a7545ad51 100644
  
      sp<ABuffer> csd = new ABuffer(len3);
      uint8_t *dst = csd->data();
+diff --git a/media/libstagefright/timedtext/TextDescriptions.cpp b/media/libstagefright/timedtext/TextDescriptions.cpp
+index c762a74d08..83d15a28ca 100644
+--- a/media/libstagefright/timedtext/TextDescriptions.cpp
++++ b/media/libstagefright/timedtext/TextDescriptions.cpp
+@@ -383,7 +383,7 @@ status_t TextDescriptions::extract3GPPGlobalDescriptions(
+         tmpData += 8;
+         size_t remaining = size - 8;
+ 
+-        if (size < chunkSize) {
++        if (chunkSize <= 8 || size < chunkSize) {
+             return OK;
+         }
+         switch(chunkType) {
 diff --git a/media/mediaserver/Android.mk b/media/mediaserver/Android.mk
-index 1738df80d..c2b9c1f95 100644
+index 1738df80dc..c2b9c1f959 100644
 --- a/media/mediaserver/Android.mk
 +++ b/media/mediaserver/Android.mk
 @@ -42,4 +42,8 @@ LOCAL_INIT_RC := mediaserver.rc
@@ -4387,7 +4537,7 @@ index 1738df80d..c2b9c1f95 100644
 +
  include $(BUILD_EXECUTABLE)
 diff --git a/media/mediaserver/main_mediaserver.cpp b/media/mediaserver/main_mediaserver.cpp
-index ecddc4827..0abe6ac95 100644
+index ecddc48272..0abe6ac959 100644
 --- a/media/mediaserver/main_mediaserver.cpp
 +++ b/media/mediaserver/main_mediaserver.cpp
 @@ -25,6 +25,9 @@
@@ -4411,7 +4561,7 @@ index ecddc4827..0abe6ac95 100644
      ProcessState::self()->startThreadPool();
      IPCThreadState::self()->joinThreadPool();
 diff --git a/media/mtp/MtpServer.cpp b/media/mtp/MtpServer.cpp
-index e39dcddb7..65a241527 100644
+index e39dcddb79..65a241527d 100644
 --- a/media/mtp/MtpServer.cpp
 +++ b/media/mtp/MtpServer.cpp
 @@ -136,20 +136,9 @@ void MtpServer::removeStorage(MtpStorage* storage) {
@@ -4480,7 +4630,7 @@ index e39dcddb7..65a241527 100644
      if (!storage)
          return MTP_RESPONSE_INVALID_STORAGE_ID;
 diff --git a/media/mtp/MtpServer.h b/media/mtp/MtpServer.h
-index b3a11e0a5..cd543c859 100644
+index b3a11e0a54..cd543c859b 100644
 --- a/media/mtp/MtpServer.h
 +++ b/media/mtp/MtpServer.h
 @@ -95,8 +95,6 @@ public:
@@ -4504,7 +4654,7 @@ index b3a11e0a5..cd543c859 100644
      void                sendStoreRemoved(MtpStorageID id);
      void                sendEvent(MtpEventCode code, uint32_t param1);
 diff --git a/media/ndk/NdkMediaCodec.cpp b/media/ndk/NdkMediaCodec.cpp
-index 50b490d45..73e733e77 100644
+index 50b490d457..73e733e77b 100644
 --- a/media/ndk/NdkMediaCodec.cpp
 +++ b/media/ndk/NdkMediaCodec.cpp
 @@ -447,7 +447,13 @@ AMediaCodecCryptoInfo *AMediaCodecCryptoInfo_new(
@@ -4523,7 +4673,7 @@ index 50b490d45..73e733e77 100644
      if (!ret) {
          ALOGE("couldn't allocate %zu bytes", cryptosize);
 diff --git a/services/audioflinger/AudioFlinger.cpp b/services/audioflinger/AudioFlinger.cpp
-index fec3a57c1..4aad2c219 100644
+index fec3a57c1f..8b47fdbcbc 100644
 --- a/services/audioflinger/AudioFlinger.cpp
 +++ b/services/audioflinger/AudioFlinger.cpp
 @@ -1509,7 +1509,8 @@ sp<IAudioRecord> AudioFlinger::openRecord(
@@ -4536,8 +4686,46 @@ index fec3a57c1..4aad2c219 100644
          ALOGE("openRecord() permission denied: recording not allowed");
          lStatus = PERMISSION_DENIED;
          goto Exit;
+@@ -2759,9 +2760,13 @@ sp<IEffect> AudioFlinger::createEffect(
+             }
+             // look for the thread where the specified audio session is present
+             for (size_t i = 0; i < mPlaybackThreads.size(); i++) {
+-                if (mPlaybackThreads.valueAt(i)->hasAudioSession(sessionId) != 0) {
++                uint32_t sessionType = mPlaybackThreads.valueAt(i)->hasAudioSession(sessionId);
++                if (sessionType != 0) {
+                     io = mPlaybackThreads.keyAt(i);
+-                    break;
++                    // thread with same effect session is preferable
++                    if ((sessionType & ThreadBase::EFFECT_SESSION) != 0) {
++                        break;
++                    }
+                 }
+             }
+             if (io == 0) {
+@@ -2779,6 +2784,21 @@ sp<IEffect> AudioFlinger::createEffect(
+                 io = mPlaybackThreads.keyAt(0);
+             }
+             ALOGV("createEffect() got io %d for effect %s", io, desc.name);
++        } else if (checkPlaybackThread_l(io) != nullptr) {
++            // allow only one effect chain per sessionId on mPlaybackThreads.
++            for (size_t i = 0; i < mPlaybackThreads.size(); i++) {
++                const audio_io_handle_t checkIo = mPlaybackThreads.keyAt(i);
++                if (io == checkIo) continue;
++                const uint32_t sessionType =
++                        mPlaybackThreads.valueAt(i)->hasAudioSession(sessionId);
++                if ((sessionType & ThreadBase::EFFECT_SESSION) != 0) {
++                    ALOGE("%s: effect %s io %d denied because session %d effect exists on io %d",
++                            __func__, desc.name, (int)io, (int)sessionId, (int)checkIo);
++                    android_errorWriteLog(0x534e4554, "123237974");
++                    lStatus = BAD_VALUE;
++                    goto Exit;
++                }
++            }
+         }
+         ThreadBase *thread = checkRecordThread_l(io);
+         if (thread == NULL) {
 diff --git a/services/audioflinger/Effects.cpp b/services/audioflinger/Effects.cpp
-index f908d6df3..b58868598 100644
+index f908d6df3a..b58868598d 100644
 --- a/services/audioflinger/Effects.cpp
 +++ b/services/audioflinger/Effects.cpp
 @@ -1309,6 +1309,24 @@ status_t AudioFlinger::EffectHandle::command(uint32_t cmdCode,
@@ -4566,7 +4754,7 @@ index f908d6df3..b58868598 100644
          if (*replySize < sizeof(int)) {
              android_errorWriteLog(0x534e4554, "32095713");
 diff --git a/services/audioflinger/Threads.cpp b/services/audioflinger/Threads.cpp
-index 7423ea9ae..1bc9516c4 100644
+index 7423ea9aee..1bc9516c4a 100644
 --- a/services/audioflinger/Threads.cpp
 +++ b/services/audioflinger/Threads.cpp
 @@ -1412,6 +1412,7 @@ sp<AudioFlinger::EffectHandle> AudioFlinger::ThreadBase::createEffect_l(
@@ -4608,7 +4796,7 @@ index 7423ea9ae..1bc9516c4 100644
          if (chainCreated) {
              removeEffectChain_l(chain);
 diff --git a/services/audioflinger/Tracks.cpp b/services/audioflinger/Tracks.cpp
-index f18b88d72..a3f3ea5cf 100644
+index f18b88d724..a3f3ea5cf6 100644
 --- a/services/audioflinger/Tracks.cpp
 +++ b/services/audioflinger/Tracks.cpp
 @@ -141,9 +141,11 @@ AudioFlinger::ThreadBase::TrackBase::TrackBase(
@@ -4661,8 +4849,303 @@ index f18b88d72..a3f3ea5cf 100644
          mAudioTrackServerProxy = new StaticAudioTrackServerProxy(mCblk, mBuffer, frameCount,
                  mFrameSize);
      }
+diff --git a/services/audiopolicy/common/managerdefinitions/include/AudioInputDescriptor.h b/services/audiopolicy/common/managerdefinitions/include/AudioInputDescriptor.h
+index f2b39f2956..815f065f37 100644
+--- a/services/audiopolicy/common/managerdefinitions/include/AudioInputDescriptor.h
++++ b/services/audiopolicy/common/managerdefinitions/include/AudioInputDescriptor.h
+@@ -27,7 +27,7 @@
+ namespace android {
+ 
+ class IOProfile;
+-class AudioMix;
++class AudioPolicyMix;
+ 
+ // descriptor for audio inputs. Used to maintain current configuration of each opened audio input
+ // and keep track of the usage of this input.
+@@ -44,7 +44,7 @@ public:
+ 
+     audio_io_handle_t             mIoHandle;       // input handle
+     audio_devices_t               mDevice;         // current device this input is routed to
+-    AudioMix                      *mPolicyMix;     // non NULL when used by a dynamic policy
++    wp<AudioPolicyMix>            mPolicyMix;      // non NULL when used by a dynamic policy
+     const sp<IOProfile>           mProfile;        // I/O profile this output derives from
+ 
+     virtual void toAudioPortConfig(struct audio_port_config *dstConfig,
+diff --git a/services/audiopolicy/common/managerdefinitions/include/AudioOutputDescriptor.h b/services/audiopolicy/common/managerdefinitions/include/AudioOutputDescriptor.h
+index dd3f8ae353..b0cdba94cf 100644
+--- a/services/audiopolicy/common/managerdefinitions/include/AudioOutputDescriptor.h
++++ b/services/audiopolicy/common/managerdefinitions/include/AudioOutputDescriptor.h
+@@ -27,7 +27,7 @@
+ namespace android {
+ 
+ class IOProfile;
+-class AudioMix;
++class AudioPolicyMix;
+ class AudioPolicyClientInterface;
+ class DeviceDescriptor;
+ 
+@@ -124,7 +124,7 @@ public:
+     audio_io_handle_t mIoHandle;           // output handle
+     uint32_t mLatency;                  //
+     audio_output_flags_t mFlags;   //
+-    AudioMix *mPolicyMix;             // non NULL when used by a dynamic policy
++    wp<AudioPolicyMix> mPolicyMix;           // non NULL when used by a dynamic policy
+     sp<SwAudioOutputDescriptor> mOutput1;    // used by duplicated outputs: first output
+     sp<SwAudioOutputDescriptor> mOutput2;    // used by duplicated outputs: second output
+     uint32_t mDirectOpenCount; // number of clients using this output (direct outputs only)
+diff --git a/services/audiopolicy/common/managerdefinitions/include/AudioPolicyMix.h b/services/audiopolicy/common/managerdefinitions/include/AudioPolicyMix.h
+index 8f5ebefbae..c70da39de5 100644
+--- a/services/audiopolicy/common/managerdefinitions/include/AudioPolicyMix.h
++++ b/services/audiopolicy/common/managerdefinitions/include/AudioPolicyMix.h
+@@ -29,9 +29,11 @@ class SwAudioOutputDescriptor;
+ /**
+  * custom mix entry in mPolicyMixes
+  */
+-class AudioPolicyMix : public RefBase {
++class AudioPolicyMix : public AudioMix, public RefBase {
+ public:
+-    AudioPolicyMix() {}
++    AudioPolicyMix(const AudioMix &mix);
++    AudioPolicyMix(const AudioPolicyMix&) = delete;
++    AudioPolicyMix& operator=(const AudioPolicyMix&) = delete;
+ 
+     const sp<SwAudioOutputDescriptor> &getOutput() const;
+ 
+@@ -39,12 +41,7 @@ public:
+ 
+     void clearOutput();
+ 
+-    android::AudioMix *getMix();
+-
+-    void setMix(AudioMix &mix);
+-
+ private:
+-    AudioMix    mMix;                   // Audio policy mix descriptor
+     sp<SwAudioOutputDescriptor> mOutput;  // Corresponding output stream
+ };
+ 
+@@ -74,9 +71,9 @@ public:
+ 
+     audio_devices_t getDeviceAndMixForInputSource(audio_source_t inputSource,
+                                                   audio_devices_t availableDeviceTypes,
+-                                                  AudioMix **policyMix);
++                                                  sp<AudioPolicyMix> *policyMix);
+ 
+-    status_t getInputMixForAttr(audio_attributes_t attr, AudioMix **policyMix);
++    status_t getInputMixForAttr(audio_attributes_t attr, sp<AudioPolicyMix> *policyMix);
+ };
+ 
+ }; // namespace android
+diff --git a/services/audiopolicy/common/managerdefinitions/include/AudioSession.h b/services/audiopolicy/common/managerdefinitions/include/AudioSession.h
+index 388c25d11b..3b0ce71380 100644
+--- a/services/audiopolicy/common/managerdefinitions/include/AudioSession.h
++++ b/services/audiopolicy/common/managerdefinitions/include/AudioSession.h
+@@ -27,6 +27,7 @@
+ namespace android {
+ 
+ class AudioPolicyClientInterface;
++class AudioPolicyMix;
+ 
+ class AudioSession : public RefBase, public AudioSessionInfoUpdateListener
+ {
+@@ -39,7 +40,7 @@ public:
+                  audio_input_flags_t flags,
+                  uid_t uid,
+                  bool isSoundTrigger,
+-                 AudioMix* policyMix,
++                 const sp<AudioPolicyMix> &policyMix,
+                  AudioPolicyClientInterface *clientInterface);
+ 
+     status_t dump(int fd, int spaces, int index) const;
+@@ -72,7 +73,7 @@ private:
+     bool  mIsSoundTrigger;
+     uint32_t  mOpenCount;
+     uint32_t  mActiveCount;
+-    AudioMix* mPolicyMix; // non NULL when used by a dynamic policy
++    wp<AudioPolicyMix> mPolicyMix; // non NULL when used by a dynamic policy
+     AudioPolicyClientInterface* mClientInterface;
+     const AudioSessionInfoProvider* mInfoProvider;
+ };
+diff --git a/services/audiopolicy/common/managerdefinitions/src/AudioInputDescriptor.cpp b/services/audiopolicy/common/managerdefinitions/src/AudioInputDescriptor.cpp
+index c7d2ee4552..9a87751c8b 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/AudioInputDescriptor.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/AudioInputDescriptor.cpp
+@@ -20,6 +20,7 @@
+ #include "AudioInputDescriptor.h"
+ #include "IOProfile.h"
+ #include "AudioGain.h"
++#include "AudioPolicyMix.h"
+ #include "HwModule.h"
+ #include <media/AudioPolicy.h>
+ #include <policy.h>
+diff --git a/services/audiopolicy/common/managerdefinitions/src/AudioOutputDescriptor.cpp b/services/audiopolicy/common/managerdefinitions/src/AudioOutputDescriptor.cpp
+index 79bbc548c6..124b73512a 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/AudioOutputDescriptor.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/AudioOutputDescriptor.cpp
+@@ -19,6 +19,7 @@
+ 
+ #include <AudioPolicyInterface.h>
+ #include "AudioOutputDescriptor.h"
++#include "AudioPolicyMix.h"
+ #include "IOProfile.h"
+ #include "AudioGain.h"
+ #include "Volume.h"
+@@ -312,17 +313,18 @@ void SwAudioOutputDescriptor::changeRefCount(audio_stream_type_t stream,
+     } else {
+         mGlobalRefCount += delta;
+     }
++    sp<AudioPolicyMix> policyMix = mPolicyMix.promote();
+     if ((oldGlobalRefCount == 0) && (mGlobalRefCount > 0)) {
+-        if ((mPolicyMix != NULL) && ((mPolicyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
++        if ((policyMix != NULL) && ((policyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
+         {
+-            mClientInterface->onDynamicPolicyMixStateUpdate(mPolicyMix->mDeviceAddress,
++            mClientInterface->onDynamicPolicyMixStateUpdate(policyMix->mDeviceAddress,
+                     MIX_STATE_MIXING);
+         }
+ 
+     } else if ((oldGlobalRefCount > 0) && (mGlobalRefCount == 0)) {
+-        if ((mPolicyMix != NULL) && ((mPolicyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
++        if ((policyMix != NULL) && ((policyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
+         {
+-            mClientInterface->onDynamicPolicyMixStateUpdate(mPolicyMix->mDeviceAddress,
++            mClientInterface->onDynamicPolicyMixStateUpdate(policyMix->mDeviceAddress,
+                     MIX_STATE_IDLE);
+         }
+     }
+diff --git a/services/audiopolicy/common/managerdefinitions/src/AudioPolicyMix.cpp b/services/audiopolicy/common/managerdefinitions/src/AudioPolicyMix.cpp
+index 7ee98b675e..d88b2652a0 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/AudioPolicyMix.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/AudioPolicyMix.cpp
+@@ -26,6 +26,10 @@
+ 
+ namespace android {
+ 
++AudioPolicyMix::AudioPolicyMix(const AudioMix &mix) : AudioMix(mix)
++{
++}
++
+ void AudioPolicyMix::setOutput(sp<SwAudioOutputDescriptor> &output)
+ {
+     mOutput = output;
+@@ -41,16 +45,6 @@ void AudioPolicyMix::clearOutput()
+     mOutput.clear();
+ }
+ 
+-void AudioPolicyMix::setMix(AudioMix &mix)
+-{
+-    mMix = mix;
+-}
+-
+-android::AudioMix *AudioPolicyMix::getMix()
+-{
+-    return &mMix;
+-}
+-
+ status_t AudioPolicyMixCollection::registerMix(String8 address, AudioMix mix,
+                                                sp<SwAudioOutputDescriptor> desc)
+ {
+@@ -59,12 +53,11 @@ status_t AudioPolicyMixCollection::registerMix(String8 address, AudioMix mix,
+         ALOGE("registerPolicyMixes(): mix for address %s already registered", address.string());
+         return BAD_VALUE;
+     }
+-    sp<AudioPolicyMix> policyMix = new AudioPolicyMix();
+-    policyMix->setMix(mix);
++    sp<AudioPolicyMix> policyMix = new AudioPolicyMix(mix);
+     add(address, policyMix);
+ 
+     if (desc != 0) {
+-        desc->mPolicyMix = policyMix->getMix();
++        desc->mPolicyMix = policyMix;
+         policyMix->setOutput(desc);
+     }
+     return NO_ERROR;
+@@ -110,8 +103,7 @@ status_t AudioPolicyMixCollection::getOutputForAttr(audio_attributes_t attribute
+     ALOGV("getOutputForAttr() querying %zu mixes:", size());
+     desc = 0;
+     for (size_t i = 0; i < size(); i++) {
+-        sp<AudioPolicyMix> policyMix = valueAt(i);
+-        AudioMix *mix = policyMix->getMix();
++        sp<AudioPolicyMix> mix = valueAt(i);
+ 
+         if (mix->mMixType == MIX_TYPE_PLAYERS) {
+             // TODO if adding more player rules (currently only 2), make rule handling "generic"
+@@ -208,7 +200,7 @@ status_t AudioPolicyMixCollection::getOutputForAttr(audio_attributes_t attribute
+                       (hasUidExcludeRules && uidExclusionFound) ||
+                       (hasUidMatchRules && !uidMatchFound))) {
+                 ALOGV("\tgetOutputForAttr will use mix %zu", i);
+-                desc = policyMix->getOutput();
++                desc = mix->getOutput();
+             }
+ 
+         } else if (mix->mMixType == MIX_TYPE_RECORDERS) {
+@@ -217,7 +209,7 @@ status_t AudioPolicyMixCollection::getOutputForAttr(audio_attributes_t attribute
+                     strncmp(attributes.tags + strlen("addr="),
+                             mix->mDeviceAddress.string(),
+                             AUDIO_ATTRIBUTES_TAGS_MAX_SIZE - strlen("addr=") - 1) == 0) {
+-                desc = policyMix->getOutput();
++                desc = mix->getOutput();
+             }
+         }
+         if (desc != 0) {
+@@ -228,12 +220,13 @@ status_t AudioPolicyMixCollection::getOutputForAttr(audio_attributes_t attribute
+     return BAD_VALUE;
+ }
+ 
+-audio_devices_t AudioPolicyMixCollection::getDeviceAndMixForInputSource(audio_source_t inputSource,
+-                                                                        audio_devices_t availDevices,
+-                                                                        AudioMix **policyMix)
++audio_devices_t AudioPolicyMixCollection::getDeviceAndMixForInputSource(
++        audio_source_t inputSource,
++        audio_devices_t availDevices,
++        sp<AudioPolicyMix> *policyMix)
+ {
+     for (size_t i = 0; i < size(); i++) {
+-        AudioMix *mix = valueAt(i)->getMix();
++        AudioPolicyMix *mix = valueAt(i).get();
+ 
+         if (mix->mMixType != MIX_TYPE_RECORDERS) {
+             continue;
+@@ -256,7 +249,8 @@ audio_devices_t AudioPolicyMixCollection::getDeviceAndMixForInputSource(audio_so
+     return AUDIO_DEVICE_NONE;
+ }
+ 
+-status_t AudioPolicyMixCollection::getInputMixForAttr(audio_attributes_t attr, AudioMix **policyMix)
++status_t AudioPolicyMixCollection::getInputMixForAttr(
++        audio_attributes_t attr, sp<AudioPolicyMix> *policyMix)
+ {
+     if (strncmp(attr.tags, "addr=", strlen("addr=")) != 0) {
+         return BAD_VALUE;
+@@ -266,8 +260,7 @@ status_t AudioPolicyMixCollection::getInputMixForAttr(audio_attributes_t attr, A
+ #ifdef LOG_NDEBUG
+     ALOGV("getInputMixForAttr looking for address %s\n  mixes available:", address.string());
+     for (size_t i = 0; i < size(); i++) {
+-            sp<AudioPolicyMix> policyMix = valueAt(i);
+-            AudioMix *mix = policyMix->getMix();
++            sp<AudioPolicyMix> mix = valueAt(i);
+             ALOGV("\tmix %zu address=%s", i, mix->mDeviceAddress.string());
+     }
+ #endif
+@@ -278,13 +271,14 @@ status_t AudioPolicyMixCollection::getInputMixForAttr(audio_attributes_t attr, A
+         return BAD_VALUE;
+     }
+     sp<AudioPolicyMix> audioPolicyMix = valueAt(index);
+-    AudioMix *mix = audioPolicyMix->getMix();
+ 
+-    if (mix->mMixType != MIX_TYPE_PLAYERS) {
++    if (audioPolicyMix->mMixType != MIX_TYPE_PLAYERS) {
+         ALOGW("getInputMixForAttr() bad policy mix type for address %s", address.string());
+         return BAD_VALUE;
+     }
+-    *policyMix = mix;
++    if (policyMix != nullptr) {
++        *policyMix = audioPolicyMix;
++    }
+     return NO_ERROR;
+ }
+ 
 diff --git a/services/audiopolicy/common/managerdefinitions/src/AudioPort.cpp b/services/audiopolicy/common/managerdefinitions/src/AudioPort.cpp
-index 17ed537fc..ce9bdc212 100644
+index 17ed537fc9..ce9bdc2125 100644
 --- a/services/audiopolicy/common/managerdefinitions/src/AudioPort.cpp
 +++ b/services/audiopolicy/common/managerdefinitions/src/AudioPort.cpp
 @@ -384,6 +384,7 @@ AudioPortConfig::AudioPortConfig()
@@ -4673,8 +5156,42 @@ index 17ed537fc..ce9bdc212 100644
      mGain.index = -1;
  }
  
+diff --git a/services/audiopolicy/common/managerdefinitions/src/AudioSession.cpp b/services/audiopolicy/common/managerdefinitions/src/AudioSession.cpp
+index da983c5f94..498fa62135 100644
+--- a/services/audiopolicy/common/managerdefinitions/src/AudioSession.cpp
++++ b/services/audiopolicy/common/managerdefinitions/src/AudioSession.cpp
+@@ -18,6 +18,7 @@
+ //#define LOG_NDEBUG 0
+ 
+ #include <AudioPolicyInterface.h>
++#include "AudioPolicyMix.h"
+ #include "AudioSession.h"
+ #include "AudioGain.h"
+ #include "TypeConverter.h"
+@@ -34,7 +35,7 @@ AudioSession::AudioSession(audio_session_t session,
+                            audio_input_flags_t flags,
+                            uid_t uid,
+                            bool isSoundTrigger,
+-                           AudioMix* policyMix,
++                           const sp<AudioPolicyMix> &policyMix,
+                            AudioPolicyClientInterface *clientInterface) :
+     mSession(session), mInputSource(inputSource),
+     mConfig({ .format = format, .sample_rate = sampleRate, .channel_mask = channelMask}),
+@@ -77,9 +78,10 @@ uint32_t AudioSession::changeActiveCount(int delta)
+     if (event != RECORD_CONFIG_EVENT_NONE) {
+         // Dynamic policy callback:
+         // if input maps to a dynamic policy with an activity listener, notify of state change
+-        if ((mPolicyMix != NULL) && ((mPolicyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
++        sp<AudioPolicyMix> policyMix = mPolicyMix.promote();
++        if ((policyMix != NULL) && ((policyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0))
+         {
+-            mClientInterface->onDynamicPolicyMixStateUpdate(mPolicyMix->mDeviceAddress,
++            mClientInterface->onDynamicPolicyMixStateUpdate(policyMix->mDeviceAddress,
+                     (event == RECORD_CONFIG_EVENT_START) ? MIX_STATE_MIXING : MIX_STATE_IDLE);
+         }
+ 
 diff --git a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
-index 3e5bb7d3e..2ecd6b179 100644
+index 3e5bb7d3ec..2ecd6b1798 100644
 --- a/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
 +++ b/services/audiopolicy/common/managerdefinitions/src/Serializer.cpp
 @@ -383,6 +383,7 @@ status_t RouteTraits::deserialize(_xmlDoc */*doc*/, const _xmlNode *root, PtrEle
@@ -4685,8 +5202,158 @@ index 3e5bb7d3e..2ecd6b179 100644
                  return BAD_VALUE;
              }
              sources.add(source);
+diff --git a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
+index d265f11672..26453999e0 100644
+--- a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
++++ b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
+@@ -1106,10 +1106,9 @@ status_t AudioPolicyManager::startOutput(audio_io_handle_t output,
+     mOutputRoutes.incRouteActivity(session);
+ 
+     audio_devices_t newDevice;
+-    AudioMix *policyMix = NULL;
++    sp<AudioPolicyMix> policyMix = outputDesc->mPolicyMix.promote();
+     const char *address = NULL;
+-    if (outputDesc->mPolicyMix != NULL) {
+-        policyMix = outputDesc->mPolicyMix;
++    if (policyMix != NULL) {
+         address = policyMix->mDeviceAddress.string();
+         if ((policyMix->mRouteFlags & MIX_ROUTE_FLAG_RENDER) == MIX_ROUTE_FLAG_RENDER) {
+             newDevice = policyMix->mDeviceType;
+@@ -1262,12 +1261,13 @@ status_t AudioPolicyManager::stopOutput(audio_io_handle_t output,
+     if (outputDesc->mRefCount[stream] == 1) {
+         // Automatically disable the remote submix input when output is stopped on a
+         // re routing mix of type MIX_TYPE_RECORDERS
++        sp<AudioPolicyMix> policyMix = outputDesc->mPolicyMix.promote();
+         if (audio_is_remote_submix_device(outputDesc->mDevice) &&
+-                outputDesc->mPolicyMix != NULL &&
+-                outputDesc->mPolicyMix->mMixType == MIX_TYPE_RECORDERS) {
++                policyMix != NULL &&
++                policyMix->mMixType == MIX_TYPE_RECORDERS) {
+             setDeviceConnectionStateInt(AUDIO_DEVICE_IN_REMOTE_SUBMIX,
+                     AUDIO_POLICY_DEVICE_STATE_UNAVAILABLE,
+-                    outputDesc->mPolicyMix->mDeviceAddress,
++                    policyMix->mDeviceAddress,
+                     "remote-submix");
+         }
+     }
+@@ -1415,7 +1415,7 @@ status_t AudioPolicyManager::getInputForAttr(const audio_attributes_t *attr,
+     String8 address = String8("");
+     audio_source_t inputSource = attr->source;
+     audio_source_t halInputSource;
+-    AudioMix *policyMix = NULL;
++    sp<AudioPolicyMix> policyMix;
+ 
+     if (inputSource == AUDIO_SOURCE_DEFAULT) {
+         inputSource = AUDIO_SOURCE_MIC;
+@@ -1491,7 +1491,7 @@ audio_io_handle_t AudioPolicyManager::getInputForDevice(audio_devices_t device,
+                                                         audio_format_t format,
+                                                         audio_channel_mask_t channelMask,
+                                                         audio_input_flags_t flags,
+-                                                        AudioMix *policyMix)
++                                                        const sp<AudioPolicyMix> &policyMix)
+ {
+     audio_io_handle_t input = AUDIO_IO_HANDLE_NONE;
+     audio_source_t halInputSource = inputSource;
+@@ -1681,10 +1681,11 @@ status_t AudioPolicyManager::startInput(audio_io_handle_t input,
+     mInputRoutes.incRouteActivity(session);
+ 
+     if (!inputDesc->isActive() || mInputRoutes.hasRouteChanged(session)) {
++        sp<AudioPolicyMix> policyMix = inputDesc->mPolicyMix.promote();
+         // if input maps to a dynamic policy with an activity listener, notify of state change
+-        if ((inputDesc->mPolicyMix != NULL)
+-                && ((inputDesc->mPolicyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0)) {
+-            mpClientInterface->onDynamicPolicyMixStateUpdate(inputDesc->mPolicyMix->mDeviceAddress,
++        if ((policyMix != NULL)
++                && ((policyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0)) {
++            mpClientInterface->onDynamicPolicyMixStateUpdate(policyMix->mDeviceAddress,
+                     MIX_STATE_MIXING);
+         }
+ 
+@@ -1703,10 +1704,10 @@ status_t AudioPolicyManager::startInput(audio_io_handle_t input,
+         // For remote submix (a virtual device), we open only one input per capture request.
+         if (audio_is_remote_submix_device(inputDesc->mDevice)) {
+             String8 address = String8("");
+-            if (inputDesc->mPolicyMix == NULL) {
++            if (policyMix == NULL) {
+                 address = String8("0");
+-            } else if (inputDesc->mPolicyMix->mMixType == MIX_TYPE_PLAYERS) {
+-                address = inputDesc->mPolicyMix->mDeviceAddress;
++            } else if (policyMix->mMixType == MIX_TYPE_PLAYERS) {
++                address = policyMix->mDeviceAddress;
+             }
+             if (address != "") {
+                 setDeviceConnectionStateInt(AUDIO_DEVICE_OUT_REMOTE_SUBMIX,
+@@ -1750,10 +1751,11 @@ status_t AudioPolicyManager::stopInput(audio_io_handle_t input,
+     mInputRoutes.decRouteActivity(session);
+ 
+     if (!inputDesc->isActive()) {
++        sp<AudioPolicyMix> policyMix = inputDesc->mPolicyMix.promote();
+         // if input maps to a dynamic policy with an activity listener, notify of state change
+-        if ((inputDesc->mPolicyMix != NULL)
+-                && ((inputDesc->mPolicyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0)) {
+-            mpClientInterface->onDynamicPolicyMixStateUpdate(inputDesc->mPolicyMix->mDeviceAddress,
++        if ((policyMix != NULL)
++                && ((policyMix->mCbFlags & AudioMix::kCbFlagNotifyActivity) != 0)) {
++            mpClientInterface->onDynamicPolicyMixStateUpdate(policyMix->mDeviceAddress,
+                     MIX_STATE_IDLE);
+         }
+ 
+@@ -1761,10 +1763,10 @@ status_t AudioPolicyManager::stopInput(audio_io_handle_t input,
+         // used by a policy mix of type MIX_TYPE_RECORDERS
+         if (audio_is_remote_submix_device(inputDesc->mDevice)) {
+             String8 address = String8("");
+-            if (inputDesc->mPolicyMix == NULL) {
++            if (policyMix == NULL) {
+                 address = String8("0");
+-            } else if (inputDesc->mPolicyMix->mMixType == MIX_TYPE_PLAYERS) {
+-                address = inputDesc->mPolicyMix->mDeviceAddress;
++            } else if (policyMix->mMixType == MIX_TYPE_PLAYERS) {
++                address = policyMix->mDeviceAddress;
+             }
+             if (address != "") {
+                 setDeviceConnectionStateInt(AUDIO_DEVICE_OUT_REMOTE_SUBMIX,
+@@ -3809,7 +3811,7 @@ status_t AudioPolicyManager::checkOutputsForDevice(const sp<DeviceDescriptor> de
+                                   address.string());
+                         }
+                         policyMix->setOutput(desc);
+-                        desc->mPolicyMix = policyMix->getMix();
++                        desc->mPolicyMix = policyMix;
+ 
+                     } else if (((desc->mFlags & AUDIO_OUTPUT_FLAG_DIRECT) == 0) &&
+                                     hasPrimaryOutput()) {
+@@ -4927,7 +4929,7 @@ sp<IOProfile> AudioPolicyManager::getInputProfile(audio_devices_t device,
+ 
+ 
+ audio_devices_t AudioPolicyManager::getDeviceAndMixForInputSource(audio_source_t inputSource,
+-                                                                  AudioMix **policyMix)
++                                                                  sp<AudioPolicyMix> *policyMix)
+ {
+     audio_devices_t availableDeviceTypes = mAvailableInputDevices.types() & ~AUDIO_DEVICE_BIT_IN;
+     audio_devices_t selectedDeviceFromMix =
+diff --git a/services/audiopolicy/managerdefault/AudioPolicyManager.h b/services/audiopolicy/managerdefault/AudioPolicyManager.h
+index 71bcd5f7e0..3db9dbc62a 100644
+--- a/services/audiopolicy/managerdefault/AudioPolicyManager.h
++++ b/services/audiopolicy/managerdefault/AudioPolicyManager.h
+@@ -627,7 +627,7 @@ private:
+                 audio_format_t format,
+                 audio_channel_mask_t channelMask,
+                 audio_input_flags_t flags,
+-                AudioMix *policyMix);
++                const sp<AudioPolicyMix> &policyMix);
+ 
+         // internal function to derive a stream type value from audio attributes
+         audio_stream_type_t streamTypefromAttributesInt(const audio_attributes_t *attr);
+@@ -641,7 +641,7 @@ private:
+         // select input device corresponding to requested audio source and return associated policy
+         // mix if any. Calls getDeviceForInputSource().
+         audio_devices_t getDeviceAndMixForInputSource(audio_source_t inputSource,
+-                                                        AudioMix **policyMix = NULL);
++                                                      sp<AudioPolicyMix> *policyMix = NULL);
+ 
+         // Called by setDeviceConnectionState().
+         status_t setDeviceConnectionStateInt(audio_devices_t device,
 diff --git a/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp b/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp
-index a75e3ddcc..cf81d9abb 100644
+index a75e3ddcc0..cf81d9abbe 100644
 --- a/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp
 +++ b/services/audiopolicy/service/AudioPolicyInterfaceImpl.cpp
 @@ -318,7 +318,7 @@ status_t AudioPolicyService::getInputForAttr(const audio_attributes_t *attr,
@@ -4715,7 +5382,7 @@ index a75e3ddcc..cf81d9abb 100644
          return NO_INIT;
      }
 diff --git a/services/camera/libcameraservice/Android.mk b/services/camera/libcameraservice/Android.mk
-index 8d7f71cef..d98ad470e 100644
+index 8d7f71cef9..d98ad470e0 100644
 --- a/services/camera/libcameraservice/Android.mk
 +++ b/services/camera/libcameraservice/Android.mk
 @@ -80,6 +80,10 @@ LOCAL_EXPORT_C_INCLUDE_DIRS := \
@@ -4730,7 +5397,7 @@ index 8d7f71cef..d98ad470e 100644
  
  include $(BUILD_SHARED_LIBRARY)
 diff --git a/services/camera/libcameraservice/CameraService.cpp b/services/camera/libcameraservice/CameraService.cpp
-index 6124fedde..de7ea037f 100644
+index 6124fedde2..de7ea037f5 100644
 --- a/services/camera/libcameraservice/CameraService.cpp
 +++ b/services/camera/libcameraservice/CameraService.cpp
 @@ -273,7 +273,10 @@ void CameraService::onFirstRef()
@@ -4769,7 +5436,7 @@ index 6124fedde..de7ea037f 100644
              return true;
          default:
 diff --git a/services/camera/libcameraservice/api1/CameraClient.cpp b/services/camera/libcameraservice/api1/CameraClient.cpp
-index 266fb03d4..3c2b98a85 100644
+index 266fb03d40..3c2b98a85e 100644
 --- a/services/camera/libcameraservice/api1/CameraClient.cpp
 +++ b/services/camera/libcameraservice/api1/CameraClient.cpp
 @@ -520,6 +520,9 @@ void CameraClient::releaseRecordingFrameHandle(native_handle_t *handle) {
@@ -4783,7 +5450,7 @@ index 266fb03d4..3c2b98a85 100644
  
  status_t CameraClient::setVideoBufferMode(int32_t videoBufferMode) {
 diff --git a/services/soundtrigger/SoundTriggerHwService.cpp b/services/soundtrigger/SoundTriggerHwService.cpp
-index eebc48705..9d98a3039 100644
+index eebc487053..9d98a30390 100644
 --- a/services/soundtrigger/SoundTriggerHwService.cpp
 +++ b/services/soundtrigger/SoundTriggerHwService.cpp
 @@ -278,6 +278,37 @@ void SoundTriggerHwService::sendRecognitionEvent(struct sound_trigger_recognitio
@@ -4959,7 +5626,7 @@ index eebc48705..9d98a3039 100644
  
  status_t SoundTriggerHwService::Module::startRecognition(sound_model_handle_t handle,
 diff --git a/services/soundtrigger/SoundTriggerHwService.h b/services/soundtrigger/SoundTriggerHwService.h
-index 2619a5fb4..d05dacdb7 100644
+index 2619a5fb49..d05dacdb7f 100644
 --- a/services/soundtrigger/SoundTriggerHwService.h
 +++ b/services/soundtrigger/SoundTriggerHwService.h
 @@ -141,9 +141,6 @@ public:

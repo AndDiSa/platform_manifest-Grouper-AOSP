@@ -29,6 +29,21 @@ index 992cdd1..8eef03a 100644
    if (split == std::string::npos)
      return false;
    parts.push_back(cidr_literal.substr(0, split));
+diff --git a/src/proxy_resolver_v8.cc b/src/proxy_resolver_v8.cc
+index f978694..0504b03 100644
+--- a/src/proxy_resolver_v8.cc
++++ b/src/proxy_resolver_v8.cc
+@@ -762,6 +762,10 @@ int ProxyResolverV8::SetPacScript(const android::String16& script_data) {
+   if (script_data.size() == 0)
+     return ERR_PAC_SCRIPT_FAILED;
+ 
++  // Disable JIT
++  static const char kNoOpt[] = "--no-opt";
++  v8::V8::SetFlagsFromString(kNoOpt, strlen(kNoOpt));
++
+   // Try parsing the PAC script.
+   ArrayBufferAllocator allocator;
+   v8::Isolate::CreateParams create_params;
 diff --git a/test/Android.mk b/test/Android.mk
 index 9c9722e..edf9107 100644
 --- a/test/Android.mk
@@ -41,6 +56,34 @@ index 9c9722e..edf9107 100644
 +LOCAL_SHARED_LIBRARIES := libpac libutils liblog libandroid_runtime
  
  include $(BUILD_NATIVE_TEST)
+diff --git a/test/js-unittest/b_132073833.js b/test/js-unittest/b_132073833.js
+new file mode 100644
+index 0000000..79d1967
+--- /dev/null
++++ b/test/js-unittest/b_132073833.js
+@@ -0,0 +1,21 @@
++function FindProxyForURL(url, host){
++    function opt() {
++        opt['x'] = 1.1;
++        try {
++            Object.create(object);
++        } catch (e) {
++        }
++
++        for (let i = 0; i < 100000; i++) {
++
++        }
++    }
++
++    opt();
++    object = opt;
++    opt();
++
++    return "DIRECT";
++}
++
++var object;
+\ No newline at end of file
 diff --git a/test/js-unittest/change_element_kind.js b/test/js-unittest/change_element_kind.js
 new file mode 100644
 index 0000000..335d59e
@@ -63,10 +106,10 @@ index 0000000..335d59e
 +  return "DIRECT";
 +}
 diff --git a/test/proxy_resolver_v8_unittest.cc b/test/proxy_resolver_v8_unittest.cc
-index ad9c826..be7ecee 100644
+index ad9c826..73e4405 100644
 --- a/test/proxy_resolver_v8_unittest.cc
 +++ b/test/proxy_resolver_v8_unittest.cc
-@@ -544,5 +544,19 @@ TEST(ProxyResolverV8Test, DNSResolutionOfInternationDomainName) {
+@@ -544,5 +544,33 @@ TEST(ProxyResolverV8Test, DNSResolutionOfInternationDomainName) {
    EXPECT_EQ("xn--bcher-kva.ch", bindings->dns_resolves_ex[0]);
  }
  
@@ -84,19 +127,63 @@ index ad9c826..be7ecee 100644
 +  EXPECT_EQ("DIRECT", proxies[0]);
 +}
 +
++TEST(ProxyResolverV8Test, B_132073833) {
++  ProxyResolverV8WithMockBindings resolver(new MockJSBindings());
++  int result = resolver.SetPacScript(String16(B_132073833_JS));
++  EXPECT_EQ(OK, result);
++
++  // Execute FindProxyForURL().
++  result = resolver.GetProxyForURL(kQueryUrl, kQueryHost, &kResults);
++
++  EXPECT_EQ(OK, result);
++  std::vector<std::string> proxies = string16ToProxyList(kResults);
++  EXPECT_EQ(1U, proxies.size());
++  EXPECT_EQ("DIRECT", proxies[0]);
++}
++
  }  // namespace
  }  // namespace net
 diff --git a/test/proxy_test_script.h b/test/proxy_test_script.h
-index 1042366..80c96c7 100644
+index 1042366..aa10016 100644
 --- a/test/proxy_test_script.h
 +++ b/test/proxy_test_script.h
-@@ -78,6 +78,23 @@
+@@ -4,6 +4,29 @@
+ #ifndef PROXY_TEST_SCRIPT_H_
+ #define PROXY_TEST_SCRIPT_H_
+ 
++#define B_132073833_JS \
++  "function FindProxyForURL(url, host){\n" \
++  "    function opt() {\n" \
++  "        opt['x'] = 1.1;\n" \
++  "        try {\n" \
++  "            Object.create(object);\n" \
++  "        } catch (e) {\n" \
++  "        }\n" \
++  "\n" \
++  "        for (let i = 0; i < 100000; i++) {\n" \
++  "\n" \
++  "        }\n" \
++  "    }\n" \
++  "\n" \
++  "    opt();\n" \
++  "    object = opt;\n" \
++  "    opt();\n" \
++  "\n" \
++  "    return \"DIRECT\";\n" \
++  "}\n" \
++  "\n" \
++  "var object;\n" \
++
+ #define BINDING_FROM_GLOBAL_JS \
+   "// Calls a bindings outside of FindProxyForURL(). This causes the code to\n" \
+   "// get exercised during initialization.\n" \
+@@ -78,6 +101,23 @@
    "function fn() {}\n" \
    "\n" \
  
 +#define CHANGE_ELEMENT_KIND_JS \
 +  "// PAC script with getter that changes element kind.\n" \
-+  "	\n" \
++  "\n" \
 +  "function FindProxyForURL(url, host) {\n" \
 +  "  let arr = [];\n" \
 +  "  arr[1000] = 0x1234;\n" \
@@ -107,7 +194,7 @@ index 1042366..80c96c7 100644
 +  "  });\n" \
 +  "\n" \
 +  "  let results = Object.entries(arr);\n" \
-+  "  let str = results.toString(); \n" \
++  "  let str = results.toString();\n" \
 +  "  return \"DIRECT\";\n" \
 +  "}\n" \
 +

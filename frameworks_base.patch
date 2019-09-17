@@ -2197,29 +2197,6 @@ index 6fa28b1ccda..ea0347d67ad 100644
      }
  
      @SmallTest
-diff --git a/core/tests/coretests/src/android/widget/TextViewActivityTest.java b/core/tests/coretests/src/android/widget/TextViewActivityTest.java
-index 67ffd2b0ca3..381597670f8 100644
---- a/core/tests/coretests/src/android/widget/TextViewActivityTest.java
-+++ b/core/tests/coretests/src/android/widget/TextViewActivityTest.java
-@@ -699,4 +699,18 @@ public class TextViewActivityTest extends ActivityInstrumentationTestCase2<TextV
-         // hasTransientState should return false when selection is created by API.
-         assertFalse(textView.hasTransientState());
-     }
-+/*
-+    @SmallTest
-+    public void testNoAssistItemForTextFieldWithUnsupportedCharacters() throws Throwable {
-+        useSystemDefaultTextClassifier();
-+        final String text = "\u202Emoc.diordna.com";
-+        final TextView textView = mActivity.findViewById(R.id.textview);
-+        mActivityRule.runOnUiThread(() -> textView.setText(text));
-+        mInstrumentation.waitForIdleSync();
-+
-+        onView(withId(R.id.textview)).perform(longPressOnTextAtIndex(text.indexOf('.')));
-+        sleepForFloatingToolbarPopup();
-+        assertFloatingToolbarDoesNotContainItem(android.R.id.textAssist);
-+    }
-+*/
- }
 diff --git a/libs/androidfw/ResourceTypes.cpp b/libs/androidfw/ResourceTypes.cpp
 index ceeb12bab20..65588b2fafc 100644
 --- a/libs/androidfw/ResourceTypes.cpp
@@ -3025,6 +3002,39 @@ index f5447a29350..329dd9917a7 100644
      }
  
      private class UsbDisconnectedReceiver extends BroadcastReceiver {
+diff --git a/packages/VpnDialogs/AndroidManifest.xml b/packages/VpnDialogs/AndroidManifest.xml
+index a3d27ce8a3d..60ed3245bc2 100644
+--- a/packages/VpnDialogs/AndroidManifest.xml
++++ b/packages/VpnDialogs/AndroidManifest.xml
+@@ -21,6 +21,7 @@
+ 
+     <uses-permission android:name="android.permission.CONTROL_VPN" />
+     <uses-permission android:name="android.permission.CONNECTIVITY_INTERNAL" />
++    <uses-permission android:name="android.permission.HIDE_NON_SYSTEM_OVERLAY_WINDOWS"/>
+ 
+     <application android:label="VpnDialogs"
+             android:allowBackup="false" >
+diff --git a/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java b/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java
+index 72ce9c4efdc..09339743db5 100644
+--- a/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java
++++ b/packages/VpnDialogs/src/com/android/vpndialogs/ConfirmDialog.java
+@@ -16,6 +16,8 @@
+ 
+ package com.android.vpndialogs;
+ 
++import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS;
++
+ import android.content.Context;
+ import android.content.DialogInterface;
+ import android.content.pm.PackageManager;
+@@ -78,6 +80,7 @@ public class ConfirmDialog extends AlertActivity
+         setupAlert();
+ 
+         getWindow().setCloseOnTouchOutside(false);
++        getWindow().addPrivateFlags(PRIVATE_FLAG_HIDE_NON_SYSTEM_OVERLAY_WINDOWS);
+         Button button = mAlert.getButton(DialogInterface.BUTTON_POSITIVE);
+         button.setFilterTouchesWhenObscured(true);
+     }
 diff --git a/services/core/java/com/android/server/AppOpsService.java b/services/core/java/com/android/server/AppOpsService.java
 index 4caeba84b20..c95b9d52ad8 100644
 --- a/services/core/java/com/android/server/AppOpsService.java
@@ -3329,7 +3339,7 @@ index 91c4571ee49..7be177a1bc2 100644
          }
  
 diff --git a/services/core/java/com/android/server/am/ActivityStackSupervisor.java b/services/core/java/com/android/server/am/ActivityStackSupervisor.java
-index c6ab9186456..8ba368b0b00 100644
+index c6ab9186456..6115bf3ffd0 100644
 --- a/services/core/java/com/android/server/am/ActivityStackSupervisor.java
 +++ b/services/core/java/com/android/server/am/ActivityStackSupervisor.java
 @@ -2855,10 +2855,10 @@ public final class ActivityStackSupervisor implements DisplayListener {
@@ -3344,6 +3354,52 @@ index c6ab9186456..8ba368b0b00 100644
          if (mService.mShuttingDown) {
              mService.notifyAll();
          }
+@@ -3977,18 +3977,11 @@ public final class ActivityStackSupervisor implements DisplayListener {
+                             mLockTaskNotify = new LockTaskNotify(mService.mContext);
+                         }
+                         mLockTaskNotify.show(false);
+-                        try {
+-                            boolean shouldLockKeyguard = Settings.Secure.getInt(
+-                                    mService.mContext.getContentResolver(),
+-                                    Settings.Secure.LOCK_TO_APP_EXIT_LOCKED) != 0;
+-                            if (mLockTaskModeState == LOCK_TASK_MODE_PINNED && shouldLockKeyguard) {
+-                                mWindowManager.lockNow(null);
+-                                mWindowManager.dismissKeyguard();
+-                                new LockPatternUtils(mService.mContext)
+-                                        .requireCredentialEntry(UserHandle.USER_ALL);
+-                            }
+-                        } catch (SettingNotFoundException e) {
+-                            // No setting, don't lock.
++                        if (mLockTaskModeState == LOCK_TASK_MODE_PINNED && shouldLockKeyguard()) {
++                            mWindowManager.lockNow(null);
++                            mWindowManager.dismissKeyguard();
++                            new LockPatternUtils(mService.mContext)
++                                    .requireCredentialEntry(UserHandle.USER_ALL);
+                         }
+                     } catch (RemoteException ex) {
+                         throw new RuntimeException(ex);
+@@ -4025,6 +4018,21 @@ public final class ActivityStackSupervisor implements DisplayListener {
+         }
+     }
+ 
++    private boolean shouldLockKeyguard() {
++        // This functionality should be kept consistent with
++        // com.android.settings.security.ScreenPinningSettings (see b/127605586)
++        try {
++            return Settings.Secure.getInt(
++                    mService.mContext.getContentResolver(),
++                    Settings.Secure.LOCK_TO_APP_EXIT_LOCKED) != 0;
++        } catch (Settings.SettingNotFoundException e) {
++            // Log to SafetyNet for b/127605586
++            android.util.EventLog.writeEvent(0x534e4554, "127605586", -1, "");
++            LockPatternUtils lockPatternUtils = new LockPatternUtils(mService.mContext);
++            return lockPatternUtils.isSecure(mCurrentUser);
++        }
++    }
++
+     class ActivityContainer extends android.app.IActivityContainer.Stub {
+         final static int FORCE_NEW_TASK_FLAGS = FLAG_ACTIVITY_NEW_TASK |
+                 FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NO_ANIMATION;
 diff --git a/services/core/java/com/android/server/clipboard/ClipboardService.java b/services/core/java/com/android/server/clipboard/ClipboardService.java
 index 66aa40325a4..6f59e845219 100644
 --- a/services/core/java/com/android/server/clipboard/ClipboardService.java
@@ -3628,7 +3684,7 @@ index 719ce7618fd..df2c00be83d 100644
  
          public long notifyANR(InputApplicationHandle inputApplicationHandle,
 diff --git a/services/core/java/com/android/server/pm/PackageManagerService.java b/services/core/java/com/android/server/pm/PackageManagerService.java
-index b6a99408122..11b5832ad6a 100644
+index b6a99408122..6ccc128fff7 100644
 --- a/services/core/java/com/android/server/pm/PackageManagerService.java
 +++ b/services/core/java/com/android/server/pm/PackageManagerService.java
 @@ -423,7 +423,7 @@ public class PackageManagerService extends IPackageManager.Stub {
@@ -3640,6 +3696,20 @@ index b6a99408122..11b5832ad6a 100644
  
      /**
       * Whether verification is enabled by default.
+@@ -15686,6 +15686,13 @@ public class PackageManagerService extends IPackageManager.Stub {
+ 
+     @Override
+     public boolean isPackageDeviceAdminOnAnyUser(String packageName) {
++	final int callingUid = Binder.getCallingUid();
++        if (checkUidPermission(android.Manifest.permission.MANAGE_USERS, callingUid)
++                != PERMISSION_GRANTED) {
++            EventLog.writeEvent(0x534e4554, "128599183", -1, "");
++            throw new SecurityException(android.Manifest.permission.MANAGE_USERS
++                    + " permission is required to call this API");
++        }
+         return isPackageDeviceAdmin(packageName, UserHandle.USER_ALL);
+     }
+ 
 diff --git a/services/core/java/com/android/server/pm/ShortcutService.java b/services/core/java/com/android/server/pm/ShortcutService.java
 index 6e8799e8132..b33cbfd6b0c 100644
 --- a/services/core/java/com/android/server/pm/ShortcutService.java
@@ -4078,7 +4148,7 @@ index aa8e781b1c0..ec3208b3cc6 100644
              if (DEBUG_VISIBILITY) Slog.v(TAG, "Show surface turning screen on: " + mWin);
              mWin.mTurnOnScreen = false;
 diff --git a/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java b/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java
-index e3b6ecc749c..ff63b08e96e 100644
+index e3b6ecc749c..e7f01282268 100644
 --- a/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java
 +++ b/services/devicepolicy/java/com/android/server/devicepolicy/DevicePolicyManagerService.java
 @@ -71,6 +71,7 @@ import android.content.pm.PackageManager;
@@ -4097,7 +4167,25 @@ index e3b6ecc749c..ff63b08e96e 100644
  import android.util.Log;
  import android.util.Pair;
  import android.util.Slog;
-@@ -8621,6 +8623,10 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
+@@ -3153,6 +3155,9 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
+ 
+     @Override
+     public boolean isSeparateProfileChallengeAllowed(int userHandle) {
++        if (!isCallerWithSystemUid()) {
++            throw new SecurityException("Caller must be system");
++        }
+         ComponentName profileOwner = getProfileOwner(userHandle);
+         // Profile challenge is supported on N or newer release.
+         return profileOwner != null &&
+@@ -7115,6 +7120,7 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
+         if (!mHasFeature) {
+             return null;
+         }
++        enforceManageUsers();
+         synchronized (this) {
+             List<String> result = null;
+             // If we have multiple profiles we return the intersection of the
+@@ -8621,6 +8627,10 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
                          < android.os.Build.VERSION_CODES.M) {
                      return false;
                  }
@@ -4108,7 +4196,7 @@ index e3b6ecc749c..ff63b08e96e 100644
                  final PackageManager packageManager = mContext.getPackageManager();
                  switch (grantState) {
                      case DevicePolicyManager.PERMISSION_GRANT_STATE_GRANTED: {
-@@ -8646,6 +8652,8 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
+@@ -8646,6 +8656,8 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
                  return true;
              } catch (SecurityException se) {
                  return false;
@@ -4117,7 +4205,7 @@ index e3b6ecc749c..ff63b08e96e 100644
              } finally {
                  mInjector.binderRestoreCallingIdentity(ident);
              }
-@@ -8691,6 +8699,13 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
+@@ -8691,6 +8703,13 @@ public class DevicePolicyManagerService extends IDevicePolicyManager.Stub {
          }
      }
  

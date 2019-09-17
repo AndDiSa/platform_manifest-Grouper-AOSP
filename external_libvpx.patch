@@ -1,8 +1,29 @@
 diff --git a/libwebm/mkvparser/mkvparser.cc b/libwebm/mkvparser/mkvparser.cc
-index ff13327..70c1f04 100644
+index ff13327..efd3545 100644
 --- a/libwebm/mkvparser/mkvparser.cc
 +++ b/libwebm/mkvparser/mkvparser.cc
-@@ -4983,29 +4983,27 @@ bool PrimaryChromaticity::Parse(IMkvReader* reader, long long read_pos,
+@@ -4233,6 +4233,7 @@ long ContentEncoding::ParseContentEncodingEntry(long long start, long long size,
+         new (std::nothrow) ContentEncryption*[encryption_count];
+     if (!encryption_entries_) {
+       delete[] compression_entries_;
++      compression_entries_ = NULL;
+       return -1;
+     }
+     encryption_entries_end_ = encryption_entries_;
+@@ -4328,6 +4329,12 @@ long ContentEncoding::ParseCompressionEntry(long long start, long long size,
+         return status;
+       }
+ 
++      // There should be only one settings element per content compression.
++      if (compression->settings != NULL) {
++        delete[] buf;
++        return E_FILE_FORMAT_INVALID;
++      }
++
+       compression->settings = buf;
+       compression->settings_len = buflen;
+     }
+@@ -4983,29 +4990,27 @@ bool PrimaryChromaticity::Parse(IMkvReader* reader, long long read_pos,
    if (!reader)
      return false;
  

@@ -51,6 +51,38 @@ index 89f667f..fb4bdf9 100644
      if ((p_msg = (BT_HDR *) GKI_getbuf (size)) != NULL)
      {
          p_msg->event  = NFA_DM_API_RAW_FRAME_EVT;
+diff --git a/src/nfa/rw/nfa_rw_act.c b/src/nfa/rw/nfa_rw_act.c
+index 5a1091d..3821e25 100644
+--- a/src/nfa/rw/nfa_rw_act.c
++++ b/src/nfa/rw/nfa_rw_act.c
+@@ -22,6 +22,7 @@
+  *  This file contains the action functions the NFA_RW state machine.
+  *
+  ******************************************************************************/
++#include <log/log.h>
+ #include <string.h>
+ #include "nfa_rw_int.h"
+ #include "nfa_dm_int.h"
+@@ -77,9 +78,16 @@ static void nfa_rw_store_ndef_rx_buf (tRW_DATA *p_rw_data)
+ 
+     p = (UINT8 *)(p_rw_data->data.p_data + 1) + p_rw_data->data.p_data->offset;
+ 
+-    /* Save data into buffer */
+-    memcpy(&nfa_rw_cb.p_ndef_buf[nfa_rw_cb.ndef_rd_offset], p, p_rw_data->data.p_data->len);
+-    nfa_rw_cb.ndef_rd_offset += p_rw_data->data.p_data->len;
++    if ((nfa_rw_cb.ndef_rd_offset + p_rw_data->data.p_data->len) <=
++        nfa_rw_cb.ndef_cur_size) {
++      /* Save data into buffer */
++      memcpy(&nfa_rw_cb.p_ndef_buf[nfa_rw_cb.ndef_rd_offset], p,
++             p_rw_data->data.p_data->len);
++      nfa_rw_cb.ndef_rd_offset += p_rw_data->data.p_data->len;
++    } else {
++      NFA_TRACE_ERROR0("RW_SetActivatedTagType failed.");
++      android_errorWriteLog(0x534e4554, "123583388");
++    }
+ 
+     GKI_freebuf(p_rw_data->data.p_data);
+     p_rw_data->data.p_data = NULL;
 diff --git a/src/nfc/llcp/llcp_dlc.c b/src/nfc/llcp/llcp_dlc.c
 index 95bcac5..c8a300b 100644
 --- a/src/nfc/llcp/llcp_dlc.c
