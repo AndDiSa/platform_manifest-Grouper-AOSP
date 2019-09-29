@@ -20,7 +20,7 @@
     <linkfile src="root.bp" dest="Android.bp" />
     <linkfile src="bootstrap.bash" dest="bootstrap.bash" />
   </project>
-  <project path="art" name="platform/art" groups="pdk" />
+  <project path="art" name="platform/art" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="bionic" name="platform_bionic" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="bootable/recovery" name="platform/bootable/recovery" groups="pdk" />
   <project path="dalvik" name="platform/dalvik" groups="pdk-cw-fs,pdk-fs" />
@@ -81,7 +81,7 @@
   <project path="external/conscrypt" name="platform/external/conscrypt" groups="pdk-cw-fs,pdk-fs" />
   <project path="external/crcalc" name="platform/external/crcalc" groups="pdk-fs" />
   <project path="external/cros/system_api" name="platform/external/cros/system_api" />
-  <project path="external/curl" name="platform/external/curl" />
+  <project path="external/curl" name="platform/external/curl" remote="ads" revision="ads-7.1.0" />
   <project path="external/dagger2" name="platform/external/dagger2" />
   <project path="external/dbus" name="platform/external/dbus" />
   <project path="external/dbus-binding-generator" name="platform/external/dbus-binding-generator" />
