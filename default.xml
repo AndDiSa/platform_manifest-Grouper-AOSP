@@ -20,7 +20,7 @@
     <linkfile src="root.bp" dest="Android.bp" />
     <linkfile src="bootstrap.bash" dest="bootstrap.bash" />
   </project>
-  <project path="art" name="platform/art" remote="ads" revision="ads-7.1.0" groups="pdk" />
+  <project path="art" name="platform_art" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="bionic" name="platform_bionic" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="bootable/recovery" name="platform/bootable/recovery" groups="pdk" />
   <project path="dalvik" name="platform/dalvik" groups="pdk-cw-fs,pdk-fs" />
@@ -479,7 +479,7 @@
   <project path="system/core" name="android_system_core" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="system/extras" name="platform/system/extras" groups="pdk" />
   <project path="system/firewalld" name="platform/system/firewalld" />
-  <project path="system/gatekeeper" name="platform/system/gatekeeper" groups="pdk" />
+  <project path="system/gatekeeper" name="android_system_gatekeeper" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="system/keymaster" name="platform/system/keymaster" groups="pdk" />
   <project path="system/media" name="android_system_media" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="system/nativepower" name="platform/system/nativepower" />
