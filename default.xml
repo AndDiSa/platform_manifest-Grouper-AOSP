@@ -7,6 +7,8 @@
            fetch="https://github.com/AndDiSa/" />
   <remote  name="unlegacy"
            fetch="https://github.com/Unlegacy-Android/" />
+  <remote  name="lineage"
+           fetch="https://github.com/LineageOS/" />
   <default revision="refs/tags/android-7.1.2_r33"
            remote="aosp"
            sync-j="4" />
@@ -110,7 +112,7 @@
   <project path="external/fdlibm" name="platform/external/fdlibm" groups="pdk" />
   <project path="external/fec" name="platform/external/fec" />
   <project path="external/fio" name="platform/external/fio" groups="pdk-fs" />
-  <project path="external/flac" name="platform/external/flac" groups="pdk" />
+  <project path="external/flac" name="android_external_flac" remote="ads" revision="cm-14.1" "groups="pdk" />
   <project path="external/fonttools" name="platform/external/fonttools" groups="pdk-fs" />
   <project path="external/freetype" name="android_external_freetype" remote="ads" revision="ads-7.1.0" groups="pdk" />
   <project path="external/fsck_msdos" name="platform/external/fsck_msdos" groups="pdk-cw-fs,pdk-fs" />
@@ -440,7 +442,7 @@
   <project path="packages/screensavers/PhotoTable" name="platform/packages/screensavers/PhotoTable" groups="pdk-fs" />
   <project path="packages/screensavers/WebView" name="platform/packages/screensavers/WebView" groups="pdk-fs" />
   <project path="packages/services/Car" name="platform/packages/services/Car" groups="adp8064,pdk-cw-fs,pdk-fs" />
-  <project path="packages/services/Mms" name="platform/packages/services/Mms" groups="pdk-cw-fs,pdk-fs" />
+  <project path="packages/services/Mms" name="android_packages_services_Mms" remote="lineage" revision="cm-14.1" groups="pdk-cw-fs,pdk-fs" />
   <project path="packages/services/Telecomm" name="packages_services_telecomm" remote="ads" revision="ads-7.1.0" groups="pdk-cw-fs,pdk-fs" />
   <project path="packages/services/Telephony" name="services_telephony" remote="ads" revision="ads-7.1.0" groups="pdk-cw-fs,pdk-fs" />
   <project path="packages/wallpapers/LivePicker" name="platform/packages/wallpapers/LivePicker" groups="pdk-fs" />
@@ -472,7 +474,7 @@
   <project path="prebuilts/tools" name="platform/prebuilts/tools" groups="pdk,tools" />
   <project path="sdk" name="platform/sdk" groups="pdk-cw-fs,pdk-fs" />
   <project path="system/bt" name="android_system_bt" groups="pdk" remote="ads" revision="ads-7.1.0-ua"/>
-  <project path="system/ca-certificates" name="platform/system/ca-certificates" groups="pdk" />
+  <project path="system/ca-certificates" name="android_system_ca-certificates" remote="lineage" revition="cm-14.1" groups="pdk" />
   <project path="system/connectivity/apmanager" name="platform/system/connectivity/apmanager" />
   <project path="system/connectivity/dhcp_client" name="platform/system/connectivity/dhcp_client" />
   <project path="system/connectivity/shill" name="platform/system/connectivity/shill" />
